@@ -1,7 +1,7 @@
 update:
-	bash .devcontainer/update.sh 
+	bash .devcontainer/commands/update.sh 
 
 build:
-	bash .devcontainer/build.sh
+	bash .devcontainer/commands/build.sh
 up:
-	bash .devcontainer/up.sh
+	bash .devcontainer/commands/up.sh

@@ -73,8 +73,9 @@ module "eks" {
   cluster_name    = "cloud-dev-infra"
   cluster_version = "1.29"
 
-  # Indicates whether or not the Amazon EKS private API server endpoint is enabled
   cluster_endpoint_private_access = true
+
+  cluster_enabled_log_types = ["api", "audit", "authenticator", "controllerManager", "scheduler"]
 
   enable_cluster_creator_admin_permissions = true
 

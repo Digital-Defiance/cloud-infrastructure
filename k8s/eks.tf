@@ -151,12 +151,16 @@ resource "aws_key_pair" "default" {
   public_key = var.public_ssh_key
 }
 
+variable "my_ip_address" {
+  type = string
+}
+
 module "ssh_security_group" {
   name                = "ssh-security-group"
   source              = "terraform-aws-modules/security-group/aws//modules/ssh"
   version             = "~> 5.0"
   vpc_id              = module.vpc.vpc_id
-  ingress_cidr_blocks = ["0.0.0.0/0"]
+  ingress_cidr_blocks = [var.my_ip_address]
 }
 
 data "aws_ami" "ubuntu" {

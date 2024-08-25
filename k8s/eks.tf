@@ -211,6 +211,10 @@ export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || pr
 nvm install 20
 nvm use 20
 npm install -g @devcontainers/cli
+sudo apt install make
+git clone https://github.com/Digital-Defiance/cloud-infrastructure.git
+cd cloud-infrastructure
+make build
 EOF
 
   name   = "eks-cluster-tmp-manager-instance"

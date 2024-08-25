@@ -66,11 +66,6 @@ module "vpc" {
   }
 }
 
-variable "cluster_endpoint_public_access_cidrs" {
-  type        = list(string)
-  description = "list of ip ranges that can access the kubernetes API server"
-}
-
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "20.8.5"
@@ -78,8 +73,8 @@ module "eks" {
   cluster_name    = "cloud-dev-infra"
   cluster_version = "1.29"
 
-  cluster_endpoint_public_access       = true
-  cluster_endpoint_public_access_cidrs = var.cluster_endpoint_public_access_cidrs
+  # Indicates whether or not the Amazon EKS private API server endpoint is enabled
+  cluster_endpoint_private_access = true
 
   enable_cluster_creator_admin_permissions = true
 

@@ -219,6 +219,11 @@ module "ec2_instance" {
     Terraform   = "true"
     Environment = "dev"
   }
+
+  metadata_options = {
+    http_tokens = "required"
+  }
+
 }
 
 

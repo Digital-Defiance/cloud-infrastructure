@@ -139,3 +139,87 @@ output "aws_configuration_command" {
   value = "aws eks update-kubeconfig --region eu-south-1 --name ${module.eks.cluster_name}"
 }
 
+
+
+
+variable "public_ssh_key" {
+  type = string
+}
+
+resource "aws_key_pair" "default" {
+  key_name   = "eks-tmp-manager-instance-key"
+  public_key = var.public_ssh_key
+}
+
+module "ssh_security_group" {
+  name                = "ssh-security-group"
+  source              = "terraform-aws-modules/security-group/aws//modules/ssh"
+  version             = "~> 5.0"
+  vpc_id              = module.vpc.vpc_id
+  ingress_cidr_blocks = ["0.0.0.0/0"]
+}
+
+data "aws_ami" "ubuntu" {
+  most_recent = true
+  owners      = ["099720109477"] # Canonical's AWS account ID
+
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"]
+  }
+
+  filter {
+    name   = "root-device-type"
+    values = ["ebs"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+}
+
+resource "aws_eip" "ip_of_manager_instance" {
+  tags = {
+    Name = "ip_of_manager_instance"
+  }
+  domain = "vpc"
+}
+
+
+module "ec2_instance" {
+  ami       = data.aws_ami.ubuntu.id
+  source    = "terraform-aws-modules/ec2-instance/aws"
+  user_data = <<EOF
+#!/bin/bash
+  EOF
+
+  name   = "eks-cluster-tmp-manager-instance"
+  create = true
+
+  instance_type = "t3.micro"
+
+  key_name               = resource.aws_key_pair.default.key_name
+  monitoring             = true
+  vpc_security_group_ids = [module.ssh_security_group.security_group_id]
+  subnet_id              = module.vpc.public_subnets[0]
+
+  instance_tags = {
+    Name = "eks-cluster-tmp-manager-instance"
+  }
+
+  tags = {
+    Terraform   = "true"
+    Environment = "dev"
+  }
+}
+
+
+resource "aws_eip_association" "eip_assoc" {
+  count         = 1
+  instance_id   = module.ec2_instance.id
+  allocation_id = resource.aws_eip.ip_of_manager_instance.id
+  depends_on = [
+    module.vpc,
+  ]
+}

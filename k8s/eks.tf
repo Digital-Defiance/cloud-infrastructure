@@ -199,6 +199,12 @@ module "ec2_instance" {
   source    = "terraform-aws-modules/ec2-instance/aws"
   user_data = <<EOF
 #!/bin/bash
+sudo apt update -y
+sudo apt -y install docker
+sudo service docker start
+sudo usermod -a -G docker ec2-user
+sudo chmod 666 /var/run/docker.sock
+docker version
   EOF
 
   name   = "eks-cluster-tmp-manager-instance"

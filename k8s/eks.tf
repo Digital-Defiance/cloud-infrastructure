@@ -57,8 +57,8 @@ module "vpc" {
   single_nat_gateway   = true
   enable_dns_hostnames = true
 
-  enable_flow_log        = true
-  flow_log_traffic_type  = "REJECT"
+  enable_flow_log       = true
+  flow_log_traffic_type = "REJECT"
 
   public_subnet_tags = {
     "kubernetes.io/role/elb" = 1

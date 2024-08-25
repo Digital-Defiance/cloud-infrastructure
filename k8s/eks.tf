@@ -190,6 +190,9 @@ resource "aws_eip" "ip_of_manager_instance" {
   domain = "vpc"
 }
 
+resource "aws_ebs_encryption_by_default" "enabled" {
+  enabled = true
+}
 
 module "ec2_instance" {
   ami       = data.aws_ami.ubuntu.id

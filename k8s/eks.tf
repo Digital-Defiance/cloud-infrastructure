@@ -227,7 +227,7 @@ cd cloud-infrastructure
 make build
 EOF
 
-  name   = "eks-cluster-tmp-manager-instance"
+  name   = "eks-cluster-tmp-manager-instance-v2"
   create = true
 
   instance_type = "t3.micro"

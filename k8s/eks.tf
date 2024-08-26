@@ -198,6 +198,8 @@ resource "aws_ebs_encryption_by_default" "enabled" {
 }
 
 module "ec2_instance" {
+
+
   ami       = data.aws_ami.ubuntu.id
   source    = "terraform-aws-modules/ec2-instance/aws"
   user_data = <<EOF
@@ -234,15 +236,21 @@ EOF
   name   = "eks-cluster-tmp-manager-instance-v2"
   create = true
 
-  instance_type = "t3.micro"
+  instance_type = "t4g.micro"
 
   key_name               = resource.aws_key_pair.default.key_name
   monitoring             = true
   vpc_security_group_ids = [module.ssh_security_group.security_group_id]
   subnet_id              = module.vpc.public_subnets[0]
 
+  root_block_device = [
+    {
+      volume_size = 30
+    }
+  ]
+
   instance_tags = {
-    Name = "eks-cluster-tmp-manager-instance"
+    Name = "eks-cluster-tmp-manager-instance-v2"
   }
 
   tags = {

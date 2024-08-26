@@ -1,1 +1,1 @@
-devcontainer up --remove-existing-container
+devcontainer --workspace-folder . up --remove-existing-container

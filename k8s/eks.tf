@@ -1,10 +1,13 @@
 terraform {
-
-  backend "s3" {
-    key    = "cloud-infrastructure"
-    bucket = "digitaldefiance-terraform-backend"
-    region = "eu-south-1"
+  cloud {
+    organization = "digitaldefiance"
+    ## Required for Terraform Enterprise; Defaults to app.terraform.io for HCP Terraform
+    hostname = "app.terraform.io"
+    workspaces {
+      name = "cloud-infrastructure"
+    }
   }
+
 
   required_providers {
     aws = {
@@ -195,30 +198,59 @@ resource "aws_ebs_encryption_by_default" "enabled" {
 }
 
 module "ec2_instance" {
+
+
   ami       = data.aws_ami.ubuntu.id
   source    = "terraform-aws-modules/ec2-instance/aws"
   user_data = <<EOF
 #!/bin/bash
+
+# INSTALL DOCKER
 sudo apt update -y
-sudo apt -y install docker
+sudo apt -y install docker.io
 sudo service docker start
 sudo usermod -a -G docker ec2-user
 sudo chmod 666 /var/run/docker.sock
 docker version
-  EOF
 
-  name   = "eks-cluster-tmp-manager-instance"
+# INSTALL NVM
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.0/install.sh | bash
+export NVM_DIR="$([ -z "$\{XDG_CONFIG_HOME-}" ] && printf %s "$\{HOME}/.nvm" || printf %s "$\{XDG_CONFIG_HOME}/nvm")"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
+
+# INSTALL NODE 20.16.0
+nvm install 20.16.0
+nvm use 20.16.0
+
+# INSTALL DEVCONTAINERS CLI 0.65.0
+npm install -g @devcontainers/cli@0.65.0
+
+# INSTALL MAKE AND SETUP DEV CONTAINER
+sudo apt install make
+cd $HOME
+git clone https://github.com/Digital-Defiance/cloud-infrastructure.git
+cd cloud-infrastructure
+make build
+EOF
+
+  name   = "eks-cluster-tmp-manager-instance-v2"
   create = true
 
-  instance_type = "t3.micro"
+  instance_type = "t4g.micro"
 
   key_name               = resource.aws_key_pair.default.key_name
   monitoring             = true
   vpc_security_group_ids = [module.ssh_security_group.security_group_id]
   subnet_id              = module.vpc.public_subnets[0]
 
+  root_block_device = [
+    {
+      volume_size = 30
+    }
+  ]
+
   instance_tags = {
-    Name = "eks-cluster-tmp-manager-instance"
+    Name = "eks-cluster-tmp-manager-instance-v2"
   }
 
   tags = {

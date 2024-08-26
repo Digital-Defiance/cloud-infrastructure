@@ -1,1 +1,1 @@
-devcontainer build
+devcontainer --workspace-folder . build

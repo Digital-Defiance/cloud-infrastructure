@@ -138,9 +138,6 @@ module "irsa-ebs-csi" {
 }
 
 
-output "aws_configuration_command" {
-  value = "aws eks update-kubeconfig --region eu-south-1 --name ${module.eks.cluster_name}"
-}
 
 
 
@@ -197,7 +194,7 @@ resource "aws_ebs_encryption_by_default" "enabled" {
   enabled = true
 }
 
-module "ec2_instance" {
+module "ec2_temp_instance" {
 
 
   ami       = data.aws_ami.ubuntu.id
@@ -268,9 +265,17 @@ EOF
 
 resource "aws_eip_association" "eip_assoc" {
   count         = 1
-  instance_id   = module.ec2_instance.id
+  instance_id   = module.ec2_temp_instance.id
   allocation_id = resource.aws_eip.ip_of_manager_instance.id
   depends_on = [
     module.vpc,
   ]
+}
+
+output "ssh_command" {
+  value = "ssh -i id_ed ubuntu@${module.ec2_temp_instance.public_ip}"
+}
+
+output "aws_configuration_command" {
+  value = "aws eks update-kubeconfig --region eu-south-1 --name ${module.eks.cluster_name}"
 }

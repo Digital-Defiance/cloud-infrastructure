@@ -2,6 +2,9 @@ name: Dev Container Build and Push Image
 
 on:
   workflow_dispatch:
+  pull_request:
+    branches:
+      - "main"
   push:
     branches:
       - "main"
@@ -29,4 +32,4 @@ jobs:
           subFolder: .github
           imageName: ghcr.io/${{ github.repository }}
           cacheFrom: ghcr.io/${{ github.repository }}
-          push: always
+          push: ${{ github.ref_name=="main" && github.event_name=="push" }}

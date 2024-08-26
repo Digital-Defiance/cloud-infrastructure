@@ -8,7 +8,7 @@
         "ghcr.io/devcontainers/features/aws-cli:1": {},
         "ghcr.io/itsmechlark/features/1password:1": {}, 
     },
-    "postAttachCommand": "git clone https://github.com/RuiFilipeCampos/nvim.git \"${XDG_CONFIG_HOME:-$HOME/.config}\"/nvim",   
+    "postCreateCommand": "git clone https://github.com/RuiFilipeCampos/nvim.git \"${XDG_CONFIG_HOME:-$HOME/.config}\"/nvim",   
     "mounts": [
         { 
             "source": "/etc/localtime", 
@@ -20,6 +20,5 @@
             "target": "/etc/resolv.conf",
             "type": "bind" 
         }
-    
     ],
 }

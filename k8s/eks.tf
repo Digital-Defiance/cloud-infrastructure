@@ -1,9 +1,13 @@
 terraform {
-  backend "s3" {
-    key    = "cloud-infrastructure"
-    bucket = "digitaldefiance-terraform-backend"
-    region = "eu-south-1"
+  cloud {
+    organization = "digitaldefiance"
+    ## Required for Terraform Enterprise; Defaults to app.terraform.io for HCP Terraform
+    hostname = "app.terraform.io"
+    workspaces {
+      name = "cloud-infrastructure"
+    }
   }
+
 
   required_providers {
     aws = {

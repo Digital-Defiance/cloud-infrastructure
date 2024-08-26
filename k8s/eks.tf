@@ -236,7 +236,7 @@ EOF
   name   = "eks-cluster-tmp-manager-instance-v2"
   create = true
 
-  instance_type = "t4g.micro"
+  instance_type = "t3.micro"
 
   key_name               = resource.aws_key_pair.default.key_name
   monitoring             = true

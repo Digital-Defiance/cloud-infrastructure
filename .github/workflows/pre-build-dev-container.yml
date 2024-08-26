@@ -5,10 +5,15 @@ on:
   push:
     paths:
       - '.github/.devcontainer/**'
+      - '.github/workflows/pre-build-dev-container.yml'
     branches:
       - "main"
     tags:
       - "v*.*.*"
+
+
+permissions:
+  packages: write
 
 jobs:
   build-and-push:

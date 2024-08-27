@@ -9,5 +9,5 @@
         "ghcr.io/itsmechlark/features/1password:1": {},
         "ghcr.io/dhoeric/features/act:1": {},
     },
-    "postCreateCommand": "git clone https://github.com/RuiFilipeCampos/nvim.git \"${XDG_CONFIG_HOME:-$HOME/.config}\"/nvim",   
+    "postCreateCommand": "./.devcontainer/postCreateCommand.sh",
 }

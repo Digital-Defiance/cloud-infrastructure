@@ -37,15 +37,15 @@ jobs:
       working-directory: .github/aws
 
     - name: Parse output to get ami
-      run: echo "AMI=$(terraform output -json | jq .ami.value)" >> $GITHUB_ENV
+      run: echo "AMI=$(terraform output -json | jq .ami.value | tr -d '"' )" >> $GITHUB_ENV
       working-directory: .github/aws
 
     - name: Parse output to get security_group_id
-      run: echo "SECURITY_GROUP_ID=$(terraform output -json | jq .security_group_id.value)" >> $GITHUB_ENV
+      run: echo "SECURITY_GROUP_ID=$(terraform output -json | jq .security_group_id.value | tr -d '"' )" >> $GITHUB_ENV
       working-directory: .github/aws
 
     - name: Parse output to get subnet_id
-      run: echo "SUBNET_ID=$(terraform output -json | jq .subnet_ids.value.ids[0])" >> $GITHUB_ENV
+      run: echo "SUBNET_ID=$(terraform output -json | jq .subnet_ids.value.ids[0] | tr -d '"' )" >> $GITHUB_ENV
       working-directory: .github/aws
 
     - name: Start EC2 runner

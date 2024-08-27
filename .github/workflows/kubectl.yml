@@ -36,12 +36,15 @@ jobs:
       run: terraform apply -auto-approve
       working-directory: .github/aws
 
-    - name: Parse subnet ids output to get ami
+    - name: Parse output to get ami
       run: echo "AMI=$(terraform output -json | jq .ami.value)" >> $GITHUB_ENV
-        
       working-directory: .github/aws
 
-    - name: Parse subnet ids output to get subnet_id
+    - name: Parse output to get security_group_id
+      run: echo "SECURITY_GROUP_ID=$(terraform output -json | jq .security_group_id.value)" >> $GITHUB_ENV
+      working-directory: .github/aws
+
+    - name: Parse output to get subnet_id
       run: echo "SUBNET_ID=$(terraform output -json | jq .subnet_ids.value.ids[0])" >> $GITHUB_ENV
       working-directory: .github/aws
 
@@ -59,7 +62,7 @@ jobs:
         subnet-id: ${{ env.SUBNET_ID }}
         github-token: ${{ secrets.GITHUB_TOKEN }}
         ec2-image-id: ${{ env.AMI }}
-
+        security-group-id: ${{ env.SECURITY_GROUP_ID }}
 
           
   kubectl:

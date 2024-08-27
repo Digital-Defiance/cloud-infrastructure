@@ -65,6 +65,14 @@ data "aws_ami" "ubuntu" {
   }
 }
 
+data "aws_security_group" "selected" {
+  name = "https_443_security_group"
+}
+
+output "security_group_id" {
+  value = data.aws_security_group.selected.id
+}
+
 output "ami" {
   value = data.aws_ami.ubuntu.id
 }

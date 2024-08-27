@@ -55,7 +55,6 @@ jobs:
         pre-runner-script: |  # sudo yum update -y && sudo yum install docker git libicu -y
             sudo systemctl enable docker
             sudo systemctl start docker
-        ec2-image-id: ${{ inputs.ami }} 
         ec2-instance-type: t3.micro
         subnet-id: ${{ env.SUBNET_ID }}
         github-token: ${{ secrets.GITHUB_TOKEN }}

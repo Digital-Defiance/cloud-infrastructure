@@ -3,7 +3,6 @@ on:
   workflow_dispatch:
   pull_request:
     
-permissions: write-all
 
 jobs:
 
@@ -61,7 +60,7 @@ jobs:
             sudo systemctl start docker
         ec2-instance-type: t3.micro
         subnet-id: ${{ env.SUBNET_ID }}
-        github-token: ${{ secrets.GITHUB_TOKEN }}
+        github-token: ${{ secrets.GH_PAT }}
         ec2-image-id: ${{ env.AMI }}
         security-group-id: ${{ env.SECURITY_GROUP_ID }}
 
@@ -107,6 +106,6 @@ jobs:
         uses: digital-defiance/ec2-github-runner@v2
         with:
           mode: stop
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GH_PAT }}
           label: ${{ needs.start-runner.outputs.label }}
           ec2-instance-id: ${{ needs.start-runner.outputs.ec2-instance-id }}

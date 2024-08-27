@@ -4,10 +4,11 @@ on:
   pull_request:
     
 
-
 jobs:
+
   start-runner: 
     runs-on: ubuntu-latest
+    environment: production
     steps:
     - uses: hashicorp/setup-terraform@v3
       with:
@@ -51,6 +52,7 @@ jobs:
           
   kubectl:
     name: Execute kubectl commands
+    environment: production
     needs:
       - start-runner
     runs-on: ${{ needs.start-runner.outputs.label }}
@@ -72,6 +74,7 @@ jobs:
   stop-runner:
     runs-on: ubuntu-latest
     name: "Deprovision infrastructure"
+    environment: production
     needs:
       - start-runner
       - kubectl

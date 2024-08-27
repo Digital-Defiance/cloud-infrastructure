@@ -6,14 +6,17 @@
 name: tfsec
 
 on:
+  workflow_dispatch:
   push:
-    branches: [ "main" ]
+    branches:
+      - "main"
     paths:
-      - ./k8s/**
+      - './k8s/**'
   pull_request:
     paths:
-      - ./k8s/**
-    branches: [ "main" ]
+      - './k8s/**'
+    branches:
+      - "main"
   schedule:
     - cron: '27 3 * * 4'
 

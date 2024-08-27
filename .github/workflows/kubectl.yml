@@ -37,6 +37,11 @@ jobs:
       working-directory: .github/aws
 
     - name: Parse subnet ids output to get subnet_id
+      run: echo "AMI=$(terraform output -json | jq .ami.value.ids[0])" >> $GITHUB_ENV
+        
+      working-directory: .github/aws
+
+    - name: Parse subnet ids output to get subnet_id
       run: echo "SUBNET_ID=$(terraform output -json | jq .subnet_ids.value.ids[0])" >> $GITHUB_ENV
       working-directory: .github/aws
 
@@ -54,6 +59,9 @@ jobs:
         ec2-instance-type: t3.micro
         subnet-id: ${{ env.SUBNET_ID }}
         github-token: ${{ secrets.GITHUB_TOKEN }}
+        ec2-image-id: ${{ env.AMI }}
+
+
           
   kubectl:
     name: Execute kubectl commands

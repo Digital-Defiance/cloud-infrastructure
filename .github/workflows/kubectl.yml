@@ -36,8 +36,8 @@ jobs:
       run: terraform apply -auto-approve
       working-directory: .github/aws
 
-    - name: Parse subnet ids output to get subnet_id
-      run: echo "AMI=$(terraform output -json | jq .ami.value.ids[0])" >> $GITHUB_ENV
+    - name: Parse subnet ids output to get ami
+      run: echo "AMI=$(terraform output -json | jq .ami.value)" >> $GITHUB_ENV
         
       working-directory: .github/aws
 

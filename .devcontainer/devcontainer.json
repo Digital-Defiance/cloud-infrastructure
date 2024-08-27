@@ -1,6 +1,7 @@
 {
     "name": "Terraform Development Environment",
     "image": "ghcr.io/digital-defiance/cloud-infrastructure:latest",
+    "postCreateCommand": "./.devcontainer/postCreateCommand.sh",
     "mounts": [
         { 
             "source": "/etc/localtime", 

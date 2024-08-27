@@ -84,12 +84,13 @@ jobs:
           
       - uses: azure/setup-kubectl@v4
 
-      - name: Configure EKS 
-        run: aws eks update-kubeconfig --region eu-south-1 --name cloud-dev-infra
+      # - name: Configure EKS 
+      #  run: aws eks update-kubeconfig --region eu-south-1 --name cloud-dev-infra
 
-      - run: kubectl get pods
+      # - run: kubectl get pods
 
   stop-runner:
+    if: ${{ always() }}
     runs-on: ubuntu-latest
     name: "Deprovision infrastructure"
     environment: production

@@ -67,7 +67,9 @@ module "vpc" {
   create_flow_log_cloudwatch_iam_role  = true
   flow_log_max_aggregation_interval    = 60
 
-
+  tags = {
+    Name = "cloud-dev-infra-vpc"
+  }
   public_subnet_tags = {
     "kubernetes.io/role/elb" = 1
   }

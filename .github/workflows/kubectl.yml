@@ -6,7 +6,7 @@ on:
 
 
 jobs:
-  build-and-push:
+  start-runner: 
     runs-on: ubuntu-latest
     steps:
     - uses: hashicorp/setup-terraform@v3
@@ -74,6 +74,7 @@ jobs:
     name: "Deprovision infrastructure"
     needs:
       - start-runner
+      - kubectl
     steps:
   
       - name: Configure AWS credentials

@@ -9,5 +9,4 @@
         "ghcr.io/itsmechlark/features/1password:1": {},
         "ghcr.io/dhoeric/features/act:1": {},
     },
-    "postCreateCommand": "./.devcontainer/postCreateCommand.sh",
 }

@@ -1,0 +1,115 @@
+name: Run kubectl
+on:
+  workflow_dispatch:
+  pull_request:
+    
+
+jobs:
+
+  start-runner: 
+    runs-on: ubuntu-latest
+    environment: production
+    outputs:
+      label: ${{ steps.start-ec2-runner.outputs.label }}
+      ec2-instance-id: ${{ steps.start-ec2-runner.outputs.ec2-instance-id }}
+    steps:
+    - uses: hashicorp/setup-terraform@v3
+      with:
+        cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+    - 
+      name: Checkout
+      id: checkout
+      uses: actions/checkout@v1
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: eu-south-1
+
+    - name: 'Setup jq'
+      uses: dcarbone/install-jq-action@v2
+    
+    - run: terraform init
+      working-directory: .github/aws
+
+    - name: Terraform apply (does not create, change or destroy resources)
+      run: terraform apply -auto-approve
+      working-directory: .github/aws
+
+    - name: Parse output to get ami
+      run: echo "AMI=$(terraform output -json | jq .ami.value | tr -d '"' )" >> $GITHUB_ENV
+      working-directory: .github/aws
+
+    - name: Parse output to get security_group_id
+      run: echo "SECURITY_GROUP_ID=$(terraform output -json | jq .security_group_id.value | tr -d '"' )" >> $GITHUB_ENV
+      working-directory: .github/aws
+
+    - name: Parse output to get subnet_id
+      run: echo "SUBNET_ID=$(terraform output -json | jq .subnet_ids.value.ids[0] | tr -d '"' )" >> $GITHUB_ENV
+      working-directory: .github/aws
+
+    - name: Start EC2 runner
+      id: start-ec2-runner
+      if: ${{ inputs.machine != 'local' }}
+      uses: digital-defiance/ec2-github-runner@feature/add-storage-option
+      with:
+        mode: start
+        root-volume-size: 25
+        pre-runner-script: |  # sudo yum update -y && sudo yum install docker git libicu -y
+            sudo systemctl enable docker
+            sudo systemctl start docker
+        ec2-instance-type: t3.micro
+        subnet-id: ${{ env.SUBNET_ID }}
+        github-token: ${{ secrets.GH_PAT }}
+        ec2-image-id: ${{ env.AMI }}
+        security-group-id: ${{ env.SECURITY_GROUP_ID }}
+
+          
+  kubectl:
+    name: Execute kubectl commands
+    environment: production
+    needs:
+      - start-runner
+    runs-on: ${{ needs.start-runner.outputs.label }}
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-south-1
+          
+      - uses: azure/setup-kubectl@v4
+
+      # - name: Configure EKS 
+      #  run: aws eks update-kubeconfig --region eu-south-1 --name cloud-dev-infra
+
+      # - run: kubectl get pods
+
+  stop-runner:
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    name: "Deprovision infrastructure"
+    environment: production
+    needs:
+      - start-runner
+      - kubectl
+    steps:
+  
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-south-1
+  
+      - name: Stop EC2 runner
+        uses: digital-defiance/ec2-github-runner@v2
+        with:
+          mode: stop
+          github-token: ${{ secrets.GH_PAT }}
+          label: ${{ needs.start-runner.outputs.label }}
+          ec2-instance-id: ${{ needs.start-runner.outputs.ec2-instance-id }}

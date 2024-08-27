@@ -6,19 +6,8 @@
         "ghcr.io/dhoeric/features/terraform-docs:1": {},
         "ghcr.io/duduribeiro/devcontainer-features/neovim:1": { "version": "nightly" },
         "ghcr.io/devcontainers/features/aws-cli:1": {},
-        "ghcr.io/itsmechlark/features/1password:1": {}, 
+        "ghcr.io/itsmechlark/features/1password:1": {},
+        "ghcr.io/dhoeric/features/act:1": {},
     },
     "postCreateCommand": "git clone https://github.com/RuiFilipeCampos/nvim.git \"${XDG_CONFIG_HOME:-$HOME/.config}\"/nvim",   
-    "mounts": [
-        { 
-            "source": "/etc/localtime", 
-            "target": "/etc/localtime",
-            "type": "bind" 
-        },
-        { 
-            "source": "${localWorkspaceFolder}/.devcontainer/resolv.conf", 
-            "target": "/etc/resolv.conf",
-            "type": "bind" 
-        }
-    ],
 }

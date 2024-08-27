@@ -20,6 +20,11 @@
       "resolved": "ghcr.io/devcontainers/features/terraform@sha256:f6cdc43852001e7fb0b73865aa09d57029e3d75900526766d587e16bc1391a80",
       "integrity": "sha256:f6cdc43852001e7fb0b73865aa09d57029e3d75900526766d587e16bc1391a80"
     },
+    "ghcr.io/dhoeric/features/act:1": {
+      "version": "1.0.0",
+      "resolved": "ghcr.io/dhoeric/features/act@sha256:2e99eed677768dff36de20e856f2f6fd285a30ea868dae229e848a2871c4462d",
+      "integrity": "sha256:2e99eed677768dff36de20e856f2f6fd285a30ea868dae229e848a2871c4462d"
+    },
     "ghcr.io/dhoeric/features/terraform-docs:1": {
       "version": "1.0.0",
       "resolved": "ghcr.io/dhoeric/features/terraform-docs@sha256:eb0c7b50809a020fa74ba924999caaf1bd2b43783ec1589775447dbca557623b",

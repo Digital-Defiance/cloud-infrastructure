@@ -99,6 +99,11 @@ module "eks" {
   vpc_id     = module.vpc.vpc_id
   subnet_ids = module.vpc.private_subnets
 
+
+  control_plane_subnet_ids = [
+    module.https_443_security_group.security_group_id
+  ]
+
   eks_managed_node_group_defaults = {
     ami_type = "AL2_x86_64"
 
@@ -154,6 +159,15 @@ resource "aws_key_pair" "default" {
 variable "my_ip_address" {
   type = string
 }
+
+module "https_443_security_group" {
+  source              = "terraform-aws-modules/security-group/aws//modules/https-443"
+  name                = "https_security_group"
+  version             = "~> 5.0"
+  vpc_id              = module.vpc.vpc_id
+  ingress_cidr_blocks = [module.vpc.vpc_cidr_block]
+}
+
 
 module "ssh_security_group" {
   name                = "ssh-security-group"

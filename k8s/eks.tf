@@ -100,7 +100,7 @@ module "eks" {
   subnet_ids = module.vpc.private_subnets
 
 
-  control_plane_subnet_ids = [
+  cluster_additional_security_group_ids = [
     module.https_443_security_group.security_group_id
   ]
 

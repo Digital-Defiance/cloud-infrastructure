@@ -1,0 +1,41 @@
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/test_user_data.yml'
+      - './k8s/user_data.sh'
+    branches:
+      - "main"
+    tags:
+      - "v*.*.*"
+
+
+
+jobs:
+  test_user_data:
+    runs-on: ubuntu-latest
+    container:
+      image: ubuntu:22.04
+
+    steps:
+    - 
+      name: Checkout
+      id: checkout
+      uses: actions/checkout@v1
+
+    - run: apt update
+    - run: apt install curl -y
+
+    - run:  sed -i "2a\\alias sudo=''" ./user_data.sh
+      name: Add alias to mock sudo
+      working-directory: ./k8s
+
+    - run:  chmod +x ./user_data.sh 
+      name: Add execute permissions
+      working-directory: ./k8s
+
+      
+    - run:  ./user_data.sh
+      working-directory: ./k8s
+
+    

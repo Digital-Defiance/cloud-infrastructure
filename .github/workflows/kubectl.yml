@@ -9,6 +9,9 @@ jobs:
   start-runner: 
     runs-on: ubuntu-latest
     environment: production
+    outputs:
+      label: ${{ steps.set-output.outputs.label }}
+      ec2-instance-id: ${{ steps.start-ec2-runner.outputs.ec2-instance-id }}
     steps:
     - uses: hashicorp/setup-terraform@v3
       with:

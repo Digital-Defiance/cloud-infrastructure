@@ -83,14 +83,16 @@ module "vpc" {
 }
 
 module "db" {
-  source = "terraform-aws-modules/rds/aws"
-
+  source               = "terraform-aws-modules/rds/aws"
   identifier           = "cloud-infra-db"
   engine               = "aurora-postgresql"
   major_engine_version = 11
   family               = "aurora-postgresql11"
 
-  instance_class = "db.t3.micro"
+  instance_class    = "db.t3.micro"
+  allocated_storage = 10
+
+  username = "postgresql-cloudinfra"
 
   subnet_ids = module.vpc.private_subnets
 

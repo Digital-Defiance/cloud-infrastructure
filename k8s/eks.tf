@@ -103,7 +103,7 @@ module "db" {
   major_engine_version = "15"
   engine               = "postgres"
   engine_version       = "15.4"
-  family               = "postgres11" # "aurora-postgresql11"
+  family               = "postgres15"
 
   instance_class    = "db.t3.micro"
   allocated_storage = 10

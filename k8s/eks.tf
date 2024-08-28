@@ -108,7 +108,7 @@ module "db" {
   instance_class    = "db.t3.micro"
   allocated_storage = 10
 
-  username = "postgresql-cloudinfra"
+  username = "postgresqlcloudinfra"
 
   subnet_ids = module.vpc.private_subnets
 

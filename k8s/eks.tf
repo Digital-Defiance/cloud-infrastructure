@@ -87,6 +87,7 @@ module "db" {
   identifier           = "cloud-infra-db"
   engine               = "aurora-postgresql"
   major_engine_version = 11
+  engine_version       = 11.9
   family               = "aurora-postgresql11"
 
   instance_class    = "db.t3.micro"

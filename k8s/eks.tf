@@ -82,13 +82,28 @@ module "vpc" {
   }
 }
 
+# data "aws_rds_engine_version" "test" {_
+#   preferred_versions = ["15.4"]
+#   engine = "postgres"
+# }
+
+data "aws_rds_orderable_db_instance" "selected" {
+  engine                     = "postgres"
+  engine_version             = "15.4"
+  license_model              = "postgresql-license"
+  preferred_instance_classes = ["db.t3.micro"]
+}
+
+
 module "db" {
-  source               = "terraform-aws-modules/rds/aws"
-  identifier           = "cloud-infra-db"
-  engine               = "aurora-postgresql"
-  major_engine_version = 11
-  engine_version       = 11.9
-  family               = "aurora-postgresql11"
+  source = "terraform-aws-modules/rds/aws"
+
+  identifier = "cloud-infra-db"
+
+  major_engine_version = "15"
+  engine               = "postgres"
+  engine_version       = "15.4"
+  family               = "postgres11" # "aurora-postgresql11"
 
   instance_class    = "db.t3.micro"
   allocated_storage = 10
@@ -299,4 +314,9 @@ output "ssh_command" {
 
 output "aws_configuration_command" {
   value = "aws eks update-kubeconfig --region eu-south-1 --name ${module.eks.cluster_name}"
+}
+
+output "rds_info" {
+  value = data.aws_rds_orderable_db_instance.selected
+
 }

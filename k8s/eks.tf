@@ -261,7 +261,7 @@ module "ec2_temp_instance_v2" {
   user_data = file("${path.module}/user_data.sh")
 
   name   = "eks-cluster-tmp-manager-instance-v2"
-  create = true
+  create = false
 
   instance_type = "t3.micro"
 

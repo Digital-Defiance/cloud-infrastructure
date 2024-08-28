@@ -68,14 +68,38 @@ module "vpc" {
   flow_log_max_aggregation_interval    = 60
 
   tags = {
-    Name = "cloud-dev-infra-vpc"
+    Name       = "cloud-dev-infra-vpc"
+    GitHubRepo = "https://github.com/Digital-Defiance/cloud-infrastructure"
   }
   public_subnet_tags = {
     "kubernetes.io/role/elb" = 1
+    GitHubRepo               = "https://github.com/Digital-Defiance/cloud-infrastructure"
   }
 
   private_subnet_tags = {
     "kubernetes.io/role/internal-elb" = 1
+    GitHubRepo                        = "https://github.com/Digital-Defiance/cloud-infrastructure"
+  }
+}
+
+module "db" {
+  source = "terraform-aws-modules/rds/aws"
+
+  identifier           = "cloud-infra-db"
+  engine               = "aurora-postgresql"
+  major_engine_version = 11
+  family               = "aurora-postgresql11"
+
+  instance_class = "db.t3.micro"
+
+  subnet_ids = module.vpc.private_subnets
+
+  manage_master_user_password = true
+
+  tags = {
+    Environment = "production"
+    Terraform   = "true"
+    GitHubRepo  = "https://github.com/Digital-Defiance/cloud-infrastructure"
   }
 }
 
@@ -201,7 +225,8 @@ data "aws_ami" "ubuntu" {
 
 resource "aws_eip" "ip_of_manager_instance" {
   tags = {
-    Name = "ip_of_manager_instance"
+    Name       = "ip_of_manager_instance"
+    GitHubRepo = "https://github.com/Digital-Defiance/cloud-infrastructure"
   }
   domain = "vpc"
 }
@@ -234,12 +259,14 @@ module "ec2_temp_instance_v2" {
   ]
 
   instance_tags = {
-    Name = "eks-cluster-tmp-manager-instance-v2"
+    GitHubRepo = "https://github.com/Digital-Defiance/cloud-infrastructure"
+    Name       = "eks-cluster-tmp-manager-instance-v2"
   }
 
   tags = {
+    GitHubRepo  = "https://github.com/Digital-Defiance/cloud-infrastructure"
     Terraform   = "true"
-    Environment = "dev"
+    Environment = "production"
   }
 
   metadata_options = {

@@ -72,6 +72,8 @@ jobs:
   kubectl:
     name: Execute kubectl commands
     environment: production
+    container:
+      image: ghcr.io/digital-defiance/cloud-infrastructure:latest
     needs:
       - start-runner
     runs-on: ${{ needs.start-runner.outputs.label }}
@@ -84,13 +86,6 @@ jobs:
           aws-region: eu-south-1
           
       - uses: azure/setup-kubectl@v4
-
-      - id: install-aws-cli
-        uses: unfor19/install-aws-cli-action@v1
-        with:
-          version: 2                         # default
-          verbose: false                     # default
-          arch: amd64                        # allowed values: amd64, arm64
 
       - name: Configure EKS 
         run: aws eks update-kubeconfig --region eu-south-1 --name cloud-dev-infra

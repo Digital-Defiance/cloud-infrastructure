@@ -1,0 +1,37 @@
+{
+  "Engine": "aurora-postgresql",
+  "EngineVersion": "11.9",
+  "DBParameterGroupFamily": "aurora-postgresql11",
+  "DBEngineDescription": "Aurora (PostgreSQL)",
+  "DBEngineVersionDescription": "Aurora PostgreSQL (Compatible with PostgreSQL 11.9)",
+  "ExportableLogTypes": [
+    "postgresql"
+  ],
+  "SupportsLogExportsToCloudwatchLogs": true,
+  "SupportsReadReplica": false,
+  "SupportedEngineModes": [
+    "provisioned"
+  ],
+  "SupportedFeatureNames": [
+    "Comprehend",
+    "Lambda",
+    "s3Export",
+    "s3Import",
+    "SageMaker"
+  ],
+  "Status": "available",
+  "SupportsParallelQuery": false,
+  "SupportsGlobalDatabases": true,
+  "MajorEngineVersion": "11",
+  "SupportsBabelfish": false,
+  "SupportsLimitlessDatabase": false,
+  "SupportsCertificateRotationWithoutRestart": true,
+  "SupportedCACertificateIdentifiers": [
+    "rds-ca-ecc384-g1",
+    "rds-ca-rsa4096-g1",
+    "rds-ca-rsa2048-g1",
+    "rds-ca-2019-eu-south-1"
+  ],
+  "SupportsLocalWriteForwarding": false,
+  "SupportsIntegrations": false
+}

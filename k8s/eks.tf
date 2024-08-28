@@ -309,7 +309,7 @@ output "user_data" {
 }
 
 output "ssh_command" {
-  value = "ssh -i id_ed ubuntu@${module.ec2_temp_instance_v2.public_ip}"
+  value = try("ssh -i id_ed ubuntu@${module.ec2_temp_instance_v2.public_ip}", null)
 }
 
 output "aws_configuration_command" {

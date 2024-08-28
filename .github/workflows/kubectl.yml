@@ -60,8 +60,14 @@ jobs:
         mode: start
         root-volume-size: 25
         pre-runner-script: |  # sudo yum update -y && sudo yum install docker git libicu -y
-            sudo systemctl enable docker
-            sudo systemctl start docker
+            sudo apt update -y
+            sudo apt -y install docker.io
+            sudo service docker start
+            sudo usermod -a -G docker ubuntu
+            sudo chmod 666 /var/run/docker.sock
+            docker version
+# sudo systemctl enable docker
+# sudo systemctl start docker
         ec2-instance-type: t3.micro
         subnet-id: ${{ env.SUBNET_ID }}
         github-token: ${{ secrets.GH_PAT }}

@@ -2,6 +2,7 @@ name: Run kubectl
 on:
   workflow_dispatch:
     
+    
 
 jobs:
 
@@ -56,10 +57,16 @@ jobs:
       uses: digital-defiance/ec2-github-runner@feature/add-storage-option
       with:
         mode: start
-        root-volume-size: 25
+        root-volume-size: 250
         pre-runner-script: |  # sudo yum update -y && sudo yum install docker git libicu -y
-            sudo systemctl enable docker
-            sudo systemctl start docker
+            sudo apt update -y
+            sudo apt -y install docker.io
+            sudo service docker start
+            sudo usermod -a -G docker ubuntu
+            sudo chmod 666 /var/run/docker.sock
+            docker version
+# sudo systemctl enable docker
+# sudo systemctl start docker
         ec2-instance-type: t3.micro
         subnet-id: ${{ env.SUBNET_ID }}
         github-token: ${{ secrets.GH_PAT }}
@@ -70,6 +77,8 @@ jobs:
   kubectl:
     name: Execute kubectl commands
     environment: production
+    container:
+      image: ghcr.io/digital-defiance/cloud-infrastructure:latest
     needs:
       - start-runner
     runs-on: ${{ needs.start-runner.outputs.label }}
@@ -83,10 +92,10 @@ jobs:
           
       - uses: azure/setup-kubectl@v4
 
-      # - name: Configure EKS 
-      #  run: aws eks update-kubeconfig --region eu-south-1 --name cloud-dev-infra
+      - name: Configure EKS 
+        run: aws eks update-kubeconfig --region eu-south-1 --name cloud-dev-infra
 
-      # - run: kubectl get pods
+      - run: kubectl get pods
 
   stop-runner:
     if: ${{ always() }}

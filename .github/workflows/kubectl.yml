@@ -111,11 +111,11 @@ jobs:
         name: Create namespace "coder"
         run: kubectl apply -f manifest.yml
 
-      - 
-        working-directory: ./k8s
-        run: |
-          kubectl create secret generic coder-db-url -n coder \
-            --from-literal=url="postgres://${{ needs.start-runner.outputs.db_username  }}:${{ secrets.db_password }}@${{ needs.start-runner.outputs.db_endpoint }}/?sslmode=disable" 
+      #- 
+      #  working-directory: ./k8s
+      #  run: |
+      #    kubectl create secret generic coder-db-url -n coder \
+      #      --from-literal=url="postgres://${{ needs.start-runner.outputs.db_username  }}:${{ secrets.db_password }}@${{ needs.start-runner.outputs.db_endpoint }}/?sslmode=disable" 
                
       - 
         run: helm repo add coder-v2 https://helm.coder.com/v2

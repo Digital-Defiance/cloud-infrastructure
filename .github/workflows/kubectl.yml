@@ -67,7 +67,7 @@ jobs:
             docker version
 # sudo systemctl enable docker
 # sudo systemctl start docker
-        ec2-instance-type: t3.micro
+        ec2-instance-type: t3.small
         subnet-id: ${{ env.SUBNET_ID }}
         github-token: ${{ secrets.GH_PAT }}
         ec2-image-id: ${{ env.AMI }}

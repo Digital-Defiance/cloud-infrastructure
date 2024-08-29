@@ -71,6 +71,22 @@ data "aws_security_group" "selected" {
   }
 }
 
+
+data "aws_db_instance" "selected" {
+  tags = {
+    GitHubRepo = "https://github.com/Digital-Defiance/cloud-infrastructure"
+  }
+}
+
+output "db_instance_master_username" {
+  value = data.aws_db_instance.selected.master_username
+}
+
+
+output "db_instance_endpoint" {
+  value = data.aws_db_instance.selected.endpoint
+}
+
 output "security_group_id" {
   value = data.aws_security_group.selected.id
 }

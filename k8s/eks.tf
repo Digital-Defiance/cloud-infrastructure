@@ -308,6 +308,18 @@ output "user_data" {
 
 }
 
+output "db_module" {
+  value = module.db
+}
+
+output "db_instance_endpoint" {
+  value = module.db.db_instance_endpoint
+}
+
+output "db_instance_port" {
+  value = module.db.db_instance_port
+}
+
 output "ssh_command" {
   value = try("ssh -i id_ed ubuntu@${module.ec2_temp_instance_v2.public_ip}", null)
 }

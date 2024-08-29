@@ -46,12 +46,12 @@ jobs:
       run: |
         TERRAFORM_OUTPUT=$(terraform output -json) 
 
-        echo "AMI=$( $TERRAFORM_OUTPUT | jq .ami.value | tr -d '"' )" >> $GITHUB_ENV
-        echo "SECURITY_GROUP_ID=$( $TERRAFORM_OUTPUT | jq .security_group_id.value | tr -d '"' )" >> $GITHUB_ENV
-        echo "SUBNET_ID=$( $TERRAFORM_OUTPUT | jq .subnet_ids.value.ids[0] | tr -d '"' )" >> $GITHUB_ENV
+        echo "AMI=$( "$TERRAFORM_OUTPUT" | jq .ami.value | tr -d '"' )" >> $GITHUB_ENV
+        echo "SECURITY_GROUP_ID=$( "$TERRAFORM_OUTPUT" | jq .security_group_id.value | tr -d '"' )" >> $GITHUB_ENV
+        echo "SUBNET_ID=$("$TERRAFORM_OUTPUT" | jq .subnet_ids.value.ids[0] | tr -d '"' )" >> $GITHUB_ENV
 
-        echo "db_master_username=$( $TERRAFORM_OUTPUT | jq .db_instance_master_username.value | tr -d '"' )" >> $GITHUB_OUTPUT
-        echo "db_instance_endpoint=$( $TERRAFORM_OUTPUT | jq .db_instance_endpoint.value | tr -d '"' )" >> $GITHUB_OUTPUT
+        echo "db_master_username=$( "$TERRAFORM_OUTPUT" | jq .db_instance_master_username.value | tr -d '"' )" >> $GITHUB_OUTPUT
+        echo "db_instance_endpoint=$( "$TERRAFORM_OUTPUT" | jq .db_instance_endpoint.value | tr -d '"' )" >> $GITHUB_OUTPUT
         
 
     - name: Start EC2 runner

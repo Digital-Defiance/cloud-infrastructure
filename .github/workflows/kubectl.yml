@@ -1,4 +1,4 @@
-name: Run kubectl
+name: Deploy coder
 on:
   workflow_dispatch:
     

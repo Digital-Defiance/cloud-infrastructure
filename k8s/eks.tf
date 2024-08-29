@@ -254,14 +254,14 @@ resource "aws_ebs_encryption_by_default" "enabled" {
 }
 
 module "ec2_temp_instance_v2" {
-
+  create = true
 
   ami       = data.aws_ami.ubuntu.id
   source    = "terraform-aws-modules/ec2-instance/aws"
   user_data = file("${path.module}/user_data.sh")
 
   name   = "eks-cluster-tmp-manager-instance-v2"
-  create = false
+  
 
   instance_type = "t3.micro"
 
@@ -295,7 +295,7 @@ module "ec2_temp_instance_v2" {
 
 
 resource "aws_eip_association" "eip_assoc" {
-  count         = 0
+  count         = 1
   instance_id   = module.ec2_temp_instance_v2.id
   allocation_id = resource.aws_eip.ip_of_manager_instance.id
   depends_on = [

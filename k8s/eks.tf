@@ -105,7 +105,7 @@ module "db" {
   db_subnet_group_name   = module.vpc.database_subnet_group_name
   vpc_security_group_ids = [module.vpc.default_security_group_id]
 
-  identifier = "cloud-infra-db"
+  identifier = "cloud-infra-db-2"
 
   major_engine_version = "15"
   engine               = "postgres"

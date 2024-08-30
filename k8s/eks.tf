@@ -101,7 +101,9 @@ data "aws_rds_orderable_db_instance" "selected" {
 module "db" {
   source = "terraform-aws-modules/rds/aws"
 
-  create_db_instance = true
+  create_db_instance     = true
+  db_subnet_group_name   = module.vpc.database_subnet_group_name
+  vpc_security_group_ids = [module.vpc.default_security_group_id]
 
   identifier = "cloud-infra-db"
 
@@ -114,9 +116,6 @@ module "db" {
   allocated_storage = 10
 
   username = "postgresqlcloudinfra"
-
-  subnet_ids = module.vpc.database_subnets
-  db_subnet_group_name = module.vpc.database_subnet_group_name
 
   manage_master_user_password = true
 

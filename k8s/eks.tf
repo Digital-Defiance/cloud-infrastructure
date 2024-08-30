@@ -105,9 +105,9 @@ module "postgresql_security_group" {
   name    = "postgresql_security_group"
   vpc_id  = module.vpc.vpc_id
 
-
-  egress_cidr_blocks  = concat(module.vpc.private_subnets_cidr_blocks, module.vpc.public_subnets_cidr_blocks)
-  ingress_cidr_blocks = concat(module.vpc.private_subnets_cidr_blocks, module.vpc.public_subnets_cidr_blocks)
+  egress_ipv6_cidr_blocks = concat(module.vpc.private_subnets_ipv6_cidr_blocks, module.vpc.public_subnets_ipv6_cidr_blocks)
+  egress_cidr_blocks      = concat(module.vpc.private_subnets_cidr_blocks, module.vpc.public_subnets_cidr_blocks)
+  ingress_cidr_blocks     = concat(module.vpc.private_subnets_cidr_blocks, module.vpc.public_subnets_cidr_blocks)
 }
 
 module "db" {

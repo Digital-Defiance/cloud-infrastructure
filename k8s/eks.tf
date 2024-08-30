@@ -137,6 +137,11 @@ module "db" {
 
   manage_master_user_password = true
 
+  parameter {
+    name         = "rds.force_ssl"
+    value        = 0
+  }
+
   tags = {
     Environment = "production"
     Terraform   = "true"

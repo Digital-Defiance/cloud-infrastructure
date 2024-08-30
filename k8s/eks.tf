@@ -87,10 +87,6 @@ module "vpc" {
   }
 }
 
-# data "aws_rds_engine_version" "test" {_
-#   preferred_versions = ["15.4"]
-#   engine = "postgres"
-# }
 
 data "aws_rds_orderable_db_instance" "selected" {
   engine                     = "postgres"
@@ -105,6 +101,7 @@ output "vpc" {
 module "db" {
   source = "terraform-aws-modules/rds/aws"
 
+  apply_immediately = true
   create_db_instance = true
 
   db_subnet_group_name   = module.vpc.database_subnet_group_name

@@ -60,6 +60,9 @@ module "vpc" {
   single_nat_gateway   = true
   enable_dns_hostnames = true
 
+  create_database_subnet_group       = true
+  create_database_subnet_route_table = true
+
   enable_flow_log       = true
   flow_log_traffic_type = "REJECT"
 
@@ -110,7 +113,7 @@ module "db" {
 
   username = "postgresqlcloudinfra"
 
-  subnet_ids = module.vpc.private_subnets
+  subnet_ids = module.vpc.database_subnets
 
   manage_master_user_password = true
 
@@ -260,8 +263,8 @@ module "ec2_temp_instance_v2" {
   source    = "terraform-aws-modules/ec2-instance/aws"
   user_data = file("${path.module}/user_data.sh")
 
-  name   = "eks-cluster-tmp-manager-instance-v2"
-  
+  name = "eks-cluster-tmp-manager-instance-v2"
+
 
   instance_type = "t3.micro"
 
@@ -321,7 +324,7 @@ output "db_instance_port" {
 }
 
 output "ssh_command" {
-  value = try("ssh -i id_ed ubuntu@${module.ec2_temp_instance_v2.public_ip}", null)
+  value = try("ssh -i id_ed ubuntu@${aws_eip.ip_of_manager_instance.public_ip}", null)
 }
 
 output "aws_configuration_command" {

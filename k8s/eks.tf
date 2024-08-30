@@ -101,7 +101,7 @@ data "aws_rds_orderable_db_instance" "selected" {
 module "db" {
   source = "terraform-aws-modules/rds/aws"
 
-  create_db_instance = false
+  create_db_instance = true
 
   identifier = "cloud-infra-db"
 

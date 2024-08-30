@@ -105,9 +105,11 @@ output "vpc" {
 module "db" {
   source = "terraform-aws-modules/rds/aws"
 
-  create_db_instance     = true
+  create_db_instance = true
+
   db_subnet_group_name   = module.vpc.database_subnet_group_name
   vpc_security_group_ids = [module.vpc.default_security_group_id]
+  subnet_ids             = module.vpc.database_subnets
 
   identifier = "cloud-infra-db-2"
 

@@ -114,6 +114,7 @@ module "db" {
   username = "postgresqlcloudinfra"
 
   subnet_ids = module.vpc.database_subnets
+  db_subnet_group_name = module.vpc.database_subnet_group_name
 
   manage_master_user_password = true
 

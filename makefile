@@ -18,4 +18,4 @@ up:
 	@docker exec -itw $$WORKSPACE_FOLDER $$CONTAINER_ID bash
 
 run_kubectl:
-	@act --job kubectl -P ghcr.io/catthehacker/ubuntu:act-20.04 --secret OP_SERVICE_ACCOUNT_TOKEN=$$( op read op://$$PROJECT_ENV/actions-kubectl/OP_SERVICE_ACCOUNT_TOKEN) 
+	@act --job kubectl -P ghcr.io/catthehacker/ubuntu:act-22.04 --secret OP_SERVICE_ACCOUNT_TOKEN=$$( op read op://$$PROJECT_ENV/actions-kubectl/OP_SERVICE_ACCOUNT_TOKEN) 

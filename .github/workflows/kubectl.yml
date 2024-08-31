@@ -102,7 +102,7 @@ jobs:
     name: Execute kubectl commands
     environment: production
     container:
-      image: ghcr.io/catthehacker/ubuntu:act-22.0
+      image: ghcr.io/catthehacker/ubuntu:act-22.04
     needs:
       - start-runner
     runs-on: ${{ needs.start-runner.outputs.label }}

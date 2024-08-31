@@ -103,7 +103,7 @@ jobs:
     environment: production
     needs:
       - start-runner
-    runs-on: ubuntu-latest # ${{ needs.start-runner.outputs.label }}
+    runs-on: ${{ needs.start-runner.outputs.label }}
     steps:
 
       - name: Install Act dependencies
@@ -153,8 +153,6 @@ jobs:
         id: checkout
         uses: actions/checkout@v1
 
-      - 
-        run: echo "DB_URL=postgres://${{ needs.start-runner.outputs.db_username  }}:${{ secrets.db_password }}@${{ needs.start-runner.outputs.db_endpoint }}" >> $GITHUB_ENV
 
       -
         working-directory: ./k8s

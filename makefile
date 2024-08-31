@@ -1,11 +1,21 @@
+.ONESHELL:
+SHELL := /bin/bash
+
 stop:
-	bash .devcontainer/commands/stop.sh 
+	CONTAINER_ID=$$( @devcontainer --workspace-folder . up  | tail -n 1 | jq -r '.containerId[0:-1]')
+	@docker stop $$CONTAINER_ID
 
 update:
-	bash .devcontainer/commands/update.sh 
+	@devcontainer --workspace-folder . up --remove-existing-container
 
 build:
-	bash .devcontainer/commands/build.sh
+	@devcontainer --workspace-folder . build
 
 up:
-	bash .devcontainer/commands/up.sh
+	WORKSPACE_NAME=$$(basename "$$(pwd)")
+	WORKSPACE_FOLDER=/workspaces/$$WORKSPACE_NAME 
+	CONTAINER_ID=$$(devcontainer --workspace-folder . up  | tail -n 1 | jq -r '.containerId[0:-1]')
+	@docker exec -itw $$WORKSPACE_FOLDER $$CONTAINER_ID bash
+
+run_kubectl:
+	@act --job kubectl -P ghcr.io/catthehacker/ubuntu:act-20.04 --secret OP_SERVICE_ACCOUNT_TOKEN=$$( op read op://$$PROJECT_ENV/actions-kubectl/OP_SERVICE_ACCOUNT_TOKEN) 

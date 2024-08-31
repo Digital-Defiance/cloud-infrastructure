@@ -82,7 +82,6 @@ output "db_instance_master_username" {
   value = data.aws_db_instance.selected.master_username
 }
 
-
 output "db_instance_endpoint" {
   value = data.aws_db_instance.selected.endpoint
 }

@@ -74,7 +74,6 @@ jobs:
 
     - name: Start EC2 runner
       id: start-ec2-runner
-      if: false
       uses: digital-defiance/ec2-github-runner@feature/add-storage-option
       with:
         mode: start

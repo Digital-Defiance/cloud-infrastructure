@@ -101,13 +101,14 @@ jobs:
   kubectl:
     name: Execute kubectl commands
     environment: production
+    container:
+      image: ghcr.io/catthehacker/ubuntu:act-22.0
     needs:
       - start-runner
     runs-on: ${{ needs.start-runner.outputs.label }}
     steps:
 
       - name: Install Act dependencies
-        if: ${{ env.ACT }}
         run: |
           apt-get update && apt-get install curl unzip sudo -y
 

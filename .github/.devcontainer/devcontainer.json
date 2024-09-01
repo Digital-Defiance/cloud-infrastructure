@@ -11,6 +11,7 @@
         "ghcr.io/devcontainers/features/github-cli:1": {},
         "ghcr.io/robbert229/devcontainer-features/postgresql-client:1": { "version": "15" },
         "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
-        "ghcr.io/devcontainers/features/python:1": { "version": "3.12" , "installTools": false }
+        "ghcr.io/devcontainers/features/python:1": { "version": "3.12" , "installTools": false },
+        "ghcr.io/devcontainers/features/node:1": { "version": "20.16"}
     }
 }

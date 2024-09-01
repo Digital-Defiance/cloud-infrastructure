@@ -100,8 +100,6 @@ jobs:
           AWS_SECRET_ACCESS_KEY: "op://$PROJECT_ENV/aws_credentials/AWS_SECRET_ACCESS_KEY"
           AWS_ACCESS_KEY_ID: "op://$PROJECT_ENV/aws_credentials/AWS_ACCESS_KEY_ID"
         run: |
-          export 
-          export 
           op run -- aws eks update-kubeconfig --region eu-south-1 --name cloud-dev-infra
           op run -- kubectl get nodes
           op run -- kubectl apply -f manifest.yml

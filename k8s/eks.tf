@@ -16,7 +16,7 @@ module "irsa-ebs-csi" {
 }
 
 resource "aws_iam_policy" "coder_policy" {
-  name        = "coder-policy"
+  name        = "cloud-infra-coder-policy"
   path        = "/"
   description = "Permissions required by coder to manage aws instances"
 
@@ -85,10 +85,9 @@ module "eks" {
   vpc_id     = module.vpc.vpc_id
   subnet_ids = module.vpc.private_subnets
 
-  # iam_role_arn    = aws_iam_policy.policy.arn
   create_iam_role = true
   iam_role_additional_policies = {
-    "coder-policy" : aws_iam_policy.coder_policy.arn
+    "additional-policie" : aws_iam_policy.coder_policy.arn
   }
 
   cluster_addons = {

@@ -39,7 +39,7 @@ jobs:
         export AWS_SECRET_ACCESS_KEY="op://$PROJECT_ENV/aws_credentials/AWS_SECRET_ACCESS_KEY"
         export TF_TOKEN_app_terraform_io="op://$PROJECT_ENV/terraform_credentials/TF_TOKEN_app_terraform_io"    
         op run -- terraform init
-        op run -- terrraform apply -auto-approve
+        op run -- terraform apply -auto-approve
         TERRAFORM_OUTPUT=$(op run -- terraform output -json)
         echo "AMI=$( echo "$TERRAFORM_OUTPUT" | jq .ami.value | tr -d '"' )" >> $GITHUB_ENV
         echo "SECURITY_GROUP_ID=$( echo "$TERRAFORM_OUTPUT" | jq .security_group_id.value | tr -d '"' )" >> $GITHUB_ENV

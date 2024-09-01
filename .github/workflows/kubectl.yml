@@ -33,9 +33,12 @@ jobs:
       shell: bash
       env: 
         OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+        PROJECT_ENV: ${{ env.PROJECT_ENV }}
       run: |
-        source ../../.1password
-        op run terraform init
+        echo $PROJECT_ENV
+        export AWS_ACCESS_KEY_ID="op://$PROJECT_ENV/aws_credentials/AWS_ACCESS_KEY_ID"
+        export AWS_SECRET_ACCESS_KEY="op://$PROJECT_ENV/aws_credentials/AWS_SECRET_ACCESS_KEY"
+        export TF_TOKEN_app_terraform_io="op://$PROJECT_ENV/terraform_credentials/TF_TOKEN_app_terraform_io"        op run terraform init
         op run terrraform apply -auto-approve
         TERRAFORM_OUTPUT=$(op run -- terraform output -json)
         echo "AMI=$( echo "$TERRAFORM_OUTPUT" | jq .ami.value | tr -d '"' )" >> $GITHUB_ENV

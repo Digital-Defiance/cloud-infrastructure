@@ -14,6 +14,5 @@
         "ghcr.io/devcontainers/features/python:1": { "version": "3.12" , "installTools": false },
         "ghcr.io/devcontainers/features/node:1": { "version": "20.16"},
         "ghcr.io/jungaretti/features/make:1": {},
-        "ghcr.io/metcalfc/devcontainer-features/dagger:0": {}
-    }
+        "ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {}    
 }

@@ -32,7 +32,7 @@ jobs:
       shell: bash
       env: 
         OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
-        AWS_SECRET_ACCESS_KEY: "op://${{ env.PROJECT_ENV}}}/aws_credentials/AWS_SECRET_ACCESS_KEY"
+        AWS_SECRET_ACCESS_KEY: "op://${{ env.PROJECT_ENV }}/aws_credentials/AWS_SECRET_ACCESS_KEY"
         AWS_ACCESS_KEY_ID: "op://${{ env.PROJECT_ENV }}/aws_credentials/AWS_ACCESS_KEY_ID"
         TF_TOKEN_app_terraform_io: "op://${{ env.PROJECT_ENV }}/terraform_credentials/TF_TOKEN_app_terraform_io"
       run: |
@@ -95,7 +95,7 @@ jobs:
         env:
           OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
           DB_URL: postgresql://${{ needs.start-runner.outputs.db_username }}:${{ secrets.db_password }}@${{ needs.start-runner.outputs.db_endpoint }}/postgres
-          AWS_SECRET_ACCESS_KEY: "op://${{ env.PROJECT_ENV}}}/aws_credentials/AWS_SECRET_ACCESS_KEY"
+          AWS_SECRET_ACCESS_KEY: "op://${{ env.PROJECT_ENV }}/aws_credentials/AWS_SECRET_ACCESS_KEY"
           AWS_ACCESS_KEY_ID: "op://${{ env.PROJECT_ENV }}/aws_credentials/AWS_ACCESS_KEY_ID"
         run: |
           op run -- aws eks update-kubeconfig --region eu-south-1 --name cloud-dev-infra

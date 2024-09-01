@@ -96,9 +96,10 @@ jobs:
         shell: bash
         env:
           OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+          DB_URL: postgresql://${{ needs.start-runner.outputs.db_username }}:${{ secrets.db_password }}@${{ needs.start-runner.outputs.db_endpoint }}/postgres
+          AWS_SECRET_ACCESS_KEY: "op://$PROJECT_ENV/aws_credentials/AWS_SECRET_ACCESS_KEY"
+          AWS_ACCESS_KEY_ID: "op://$PROJECT_ENV/aws_credentials/AWS_ACCESS_KEY_ID"
         run: |
-          export AWS_ACCESS_KEY_ID="op://$PROJECT_ENV/aws_credentials/AWS_ACCESS_KEY_ID"
-          export AWS_SECRET_ACCESS_KEY="op://$PROJECT_ENV/aws_credentials/AWS_SECRET_ACCESS_KEY"
           op run -- aws eks update-kubeconfig --region eu-south-1 --name cloud-dev-infra
           op run -- kubectl get nodes
           op run -- kubectl apply -f manifest.yml

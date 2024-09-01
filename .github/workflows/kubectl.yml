@@ -39,7 +39,7 @@ jobs:
         export AWS_ACCESS_KEY_ID="op://$PROJECT_ENV/aws_credentials/AWS_ACCESS_KEY_ID"
         export AWS_SECRET_ACCESS_KEY="op://$PROJECT_ENV/aws_credentials/AWS_SECRET_ACCESS_KEY"
         export TF_TOKEN_app_terraform_io="op://$PROJECT_ENV/terraform_credentials/TF_TOKEN_app_terraform_io"        op run terraform init
-        op run terrraform apply -auto-approve
+        op run --  terrraform apply -auto-approve
         TERRAFORM_OUTPUT=$(op run -- terraform output -json)
         echo "AMI=$( echo "$TERRAFORM_OUTPUT" | jq .ami.value | tr -d '"' )" >> $GITHUB_ENV
         echo "SECURITY_GROUP_ID=$( echo "$TERRAFORM_OUTPUT" | jq .security_group_id.value | tr -d '"' )" >> $GITHUB_ENV
@@ -97,8 +97,8 @@ jobs:
         env:
           OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
         run: |
-          source ../.1password
-          op run -- aws eks update-kubeconfig --region eu-south-1 --name cloud-dev-infra
+          export AWS_ACCESS_KEY_ID="op://$PROJECT_ENV/aws_credentials/AWS_ACCESS_KEY_ID"
+          export AWS_SECRET_ACCESS_KEY="op://$PROJECT_ENV/aws_credentials/AWS_SECRET_ACCESS_KEY"
           op run -- kubectl get nodes
           op run -- kubectl apply -f manifest.yml
           op run -- helm repo add coder-v2 https://helm.coder.com/v2

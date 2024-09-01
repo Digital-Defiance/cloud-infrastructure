@@ -3,7 +3,6 @@ on:
   workflow_dispatch:
     
 env:
-  VAULT_PATH: op://digital-defiance-cloud-infrastructure-prod
   PROJECT_ENV: digital-defiance-cloud-infrastructure-prod
  
 jobs:

@@ -13,7 +13,6 @@ jobs:
     environment: production
     container:
       image: ghcr.io/digital-defiance/cloud-infrastructure:latest
-      options: --user vscode
     
     outputs:
       label: ${{ steps.start-ec2-runner.outputs.label }}
@@ -31,6 +30,7 @@ jobs:
     - 
       id: get-aws-info
       working-directory: ./.github/aws
+      shell: bash
       env: 
         OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
       run: |
@@ -90,6 +90,7 @@ jobs:
       - 
         name: Configure EKS 
         working-directory: ./k8s
+        shell: bash
         env:
           OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
         run: |

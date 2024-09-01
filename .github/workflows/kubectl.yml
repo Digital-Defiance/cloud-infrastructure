@@ -26,11 +26,20 @@ jobs:
       id: checkout
       uses: actions/checkout@v1
     
-    -
-      name: Run Dagger Engine
+    - 
       id: get-aws-info
-      run:
-        eval $(dagger call run-instance --op-token=cmd:"echo '${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}'") 
+      working-directory: ./.github/aws
+      env: 
+        OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+      run: |
+        op run terraform init
+        op run terrraform apply -auto-approve
+        TERRAFORM_OUTPUT=$(op run -- terraform output -json)
+        echo "AMI=$( echo "$TERRAFORM_OUTPUT" | jq .ami.value | tr -d '"' )" >> $GITHUB_ENV
+        echo "SECURITY_GROUP_ID=$( echo "$TERRAFORM_OUTPUT" | jq .security_group_id.value | tr -d '"' )" >> $GITHUB_ENV
+        echo "SUBNET_ID=$(echo "$TERRAFORM_OUTPUT" | jq .subnet_ids.value.ids[0] | tr -d '"' )" >> $GITHUB_ENV
+        echo "db_master_username=$( echo "$TERRAFORM_OUTPUT" | jq .db_instance_master_username.value | tr -d '"' )" >> $GITHUB_OUTPUT
+        echo "db_instance_endpoint=$( echo "$TERRAFORM_OUTPUT" | jq .db_instance_endpoint.value | tr -d '"' )" >> $GITHUB_OUTPUT
     
     -
       name: Configure AWS credentials
@@ -47,6 +56,11 @@ jobs:
       with:
         mode: start
         root-volume-size: 80
+        ec2-instance-type: t3.small
+        subnet-id: ${{ env.SUBNET_ID }}
+        github-token: ${{ secrets.GH_PAT }}
+        ec2-image-id: ${{ env.AMI }}
+        security-group-id: ${{ env.SECURITY_GROUP_ID }}
         pre-runner-script: |  
             sudo apt update -y
             sudo apt -y install docker.io
@@ -54,11 +68,6 @@ jobs:
             sudo usermod -a -G docker ubuntu
             sudo chmod 666 /var/run/docker.sock
             docker version
-        ec2-instance-type: t3.small
-        github-token: ${{ secrets.GH_PAT }}
-        subnet-id: ${{ steps.get-aws-info.outputs.subnet_id  }}
-        ec2-image-id: ${{ steps.get-aws-info.outputs.ami }}
-        security-group-id: ${{ steps.get-aws-info.outputs.security_group_id  }}
 
           
   kubectl:
@@ -70,7 +79,11 @@ jobs:
       - start-runner
     runs-on: ${{ needs.start-runner.outputs.label }}
     steps:
-
+      - 
+        name: Checkout
+        id: checkout
+        uses: actions/checkout@v1
+      
       - 
         name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -81,34 +94,17 @@ jobs:
 
       - 
         name: Configure EKS 
-        run: aws eks update-kubeconfig --region eu-south-1 --name cloud-dev-infra
-
-      - 
-        run: kubectl get nodes
-      
-      - 
-        name: Checkout
-        id: checkout
-        uses: actions/checkout@v1
-
-
-      -
-        working-directory: ./k8s
-        name: Apply manifest.yml
-        run: kubectl apply -f manifest.yml
-
-      - 
-        run: helm repo add coder-v2 https://helm.coder.com/v2
-
-      - 
         working-directory: ./k8s
         run: |
+          aws eks update-kubeconfig --region eu-south-1 --name cloud-dev-infra
+          kubectl get nodes
+          kubectl apply -f manifest.yml
+          helm repo add coder-v2 https://helm.coder.com/v2
           helm upgrade --install coder coder-v2/coder \
               --namespace coder \
               --values values.yml \
               --version 2.13.5  
-
-
+      
   stop-runner:
     if: ${{ always() }}
     runs-on: ubuntu-latest

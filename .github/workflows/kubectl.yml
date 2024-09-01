@@ -25,10 +25,6 @@ jobs:
       name: Checkout
       id: checkout
       uses: actions/checkout@v1
-
-    -
-      name: Install Dagger
-      run: curl -fsSL https://dl.dagger.io/dagger/install.sh | BIN_DIR=$HOME/.local/bin sh
     
     -
       name: Run Dagger Engine

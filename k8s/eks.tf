@@ -15,7 +15,7 @@ module "irsa-ebs-csi" {
   oidc_fully_qualified_subjects = ["system:serviceaccount:kube-system:ebs-csi-controller-sa"]
 }
 
-resource "aws_iam_policy" "policy" {
+resource "aws_iam_policy" "coder_policy" {
   name        = "coder-policy"
   path        = "/"
   description = "Permissions required by coder to manage aws instances"
@@ -85,8 +85,11 @@ module "eks" {
   vpc_id     = module.vpc.vpc_id
   subnet_ids = module.vpc.private_subnets
 
-  iam_role_arn    = aws_iam_policy.policy.arn
-  create_iam_role = false
+  # iam_role_arn    = aws_iam_policy.policy.arn
+  create_iam_role = true
+  iam_role_additional_policies = {
+    "coder-policy" : aws_iam_policy.coder_policy.arn
+  }
 
   cluster_addons = {
     aws-ebs-csi-driver = {

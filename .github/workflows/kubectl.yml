@@ -4,12 +4,15 @@ on:
     
 env:
   VAULT_PATH: op://digital-defiance-cloud-infrastructure-prod
-
+  PROJECT_ENV: digital-defiance-cloud-infrastructure-prod
+ 
 jobs:
 
   start-runner:
     runs-on: ubuntu-latest
     environment: production
+    container:
+      image: ghcr.io/digital-defiance/cloud-infrastructure:latest
     outputs:
       label: ${{ steps.start-ec2-runner.outputs.label }}
       ec2-instance-id: ${{ steps.start-ec2-runner.outputs.ec2-instance-id }}
@@ -18,67 +21,31 @@ jobs:
 
     steps:
 
-    - name: Install Act dependencies
-      if: ${{ env.ACT }}
-      run: |
-        apt-get update && apt-get install curl unzip -y
-
-    - run: curl --version
-    -
-      uses: 1password/load-secrets-action/configure@v1
-      with:
-        service-account-token: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
-
-    - 
-      uses: 1password/load-secrets-action@v1
-      env:
-        TF_TOKEN_app_terraform_io: ${{ env.VAULT_PATH }}/terraform_credentials/TF_TOKEN_app_terraform_io
-        AWS_ACCESS_KEY_ID: ${{ env.VAULT_PATH }}/aws_credentials/AWS_ACCESS_KEY_ID
-        AWS_SECRET_ACCESS_KEY: ${{ env.VAULT_PATH }}/aws_credentials/AWS_SECRET_ACCESS_KEY
-
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
-        aws-region: eu-south-1
-
-    - name: 'Setup jq'
-      uses: dcarbone/install-jq-action@v2
-
-    - 
-      uses: hashicorp/setup-terraform@v3  
-
     - 
       name: Checkout
       id: checkout
       uses: actions/checkout@v1
 
+    -
+      name: Install Dagger
+      run: curl -fsSL https://dl.dagger.io/dagger/install.sh | BIN_DIR=$HOME/.local/bin sh
     
-    - run: terraform init
-      working-directory: .github/aws
-
-    - name: Terraform apply (does not create, change or destroy resources)
-      run: terraform apply -auto-approve
-      working-directory: .github/aws
-
-    - name: Parse output to get ami
-      working-directory: .github/aws
+    -
+      name: Run Dagger Engine
       id: get-aws-info
-      run: |
-        TERRAFORM_OUTPUT=$(terraform output -json) 
-        echo "$TERRAFORM_OUTPUT" 
-
-
-        echo "AMI=$( echo "$TERRAFORM_OUTPUT" | jq .ami.value | tr -d '"' )" >> $GITHUB_ENV
-        echo "SECURITY_GROUP_ID=$( echo "$TERRAFORM_OUTPUT" | jq .security_group_id.value | tr -d '"' )" >> $GITHUB_ENV
-        echo "SUBNET_ID=$(echo "$TERRAFORM_OUTPUT" | jq .subnet_ids.value.ids[0] | tr -d '"' )" >> $GITHUB_ENV
-
-        echo "db_master_username=$( echo "$TERRAFORM_OUTPUT" | jq .db_instance_master_username.value | tr -d '"' )" >> $GITHUB_OUTPUT
-        echo "db_instance_endpoint=$( echo "$TERRAFORM_OUTPUT" | jq .db_instance_endpoint.value | tr -d '"' )" >> $GITHUB_OUTPUT
+      run:
+        eval $(dagger call run-instance --op-token=cmd:"echo '${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}'") 
     
+    -
+      name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: eu-south-1
 
-    - name: Start EC2 runner
+    -
+      name: Start EC2 runner
       id: start-ec2-runner
       uses: digital-defiance/ec2-github-runner@feature/add-storage-option
       with:
@@ -92,52 +59,28 @@ jobs:
             sudo chmod 666 /var/run/docker.sock
             docker version
         ec2-instance-type: t3.small
-        subnet-id: ${{ env.SUBNET_ID }}
         github-token: ${{ secrets.GH_PAT }}
-        ec2-image-id: ${{ env.AMI }}
-        security-group-id: ${{ env.SECURITY_GROUP_ID }}
+        subnet-id: ${{ steps.get-aws-info.outputs.subnet_id  }}
+        ec2-image-id: ${{ steps.get-aws-info.outputs.ami }}
+        security-group-id: ${{ steps.get-aws-info.outputs.security_group_id  }}
 
           
   kubectl:
     name: Execute kubectl commands
     environment: production
+    container:
+      image: ghcr.io/digital-defiance/cloud-infrastructure:latest
     needs:
       - start-runner
     runs-on: ${{ needs.start-runner.outputs.label }}
     steps:
 
-      - name: Install Act dependencies
-        run: |
-          apt-get update && apt-get install curl unzip sudo -y
-
-      - uses: 1password/load-secrets-action/configure@v1
-        with:
-          service-account-token: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
-
-      - 
-        uses: 1password/load-secrets-action@v1
-        env:
-          AWS_ACCESS_KEY_ID: ${{ env.VAULT_PATH }}/aws_credentials/AWS_ACCESS_KEY_ID
-          AWS_SECRET_ACCESS_KEY: ${{ env.VAULT_PATH }}/aws_credentials/AWS_SECRET_ACCESS_KEY
-
-      - uses: azure/setup-kubectl@v4
-        id: install-kubectl
-
-      - uses: azure/setup-helm@v4.2.0
-        id: install-helm
-
-      - id: install-aws-cli
-        uses: unfor19/install-aws-cli-action@v1
-        with:
-          version: 2                         # default
-          verbose: false                     # default
-          arch: amd64                        # allowed values: amd64, arm64
       - 
         name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-south-1
 
       - 

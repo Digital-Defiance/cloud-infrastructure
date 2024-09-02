@@ -89,23 +89,13 @@ jobs:
         uses: actions/checkout@v1
       
       - 
-        name: Configure EKS 
-        working-directory: ./k8s
         shell: bash
         env:
           OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
           DB_URL: postgresql://${{ needs.start-runner.outputs.db_username }}:${{ secrets.db_password }}@${{ needs.start-runner.outputs.db_endpoint }}/postgres
           AWS_SECRET_ACCESS_KEY: "op://${{ env.PROJECT_ENV }}/aws_credentials/AWS_SECRET_ACCESS_KEY"
           AWS_ACCESS_KEY_ID: "op://${{ env.PROJECT_ENV }}/aws_credentials/AWS_ACCESS_KEY_ID"
-        run: |
-          op run -- aws eks update-kubeconfig --region eu-south-1 --name cloud-dev-infra
-          op run -- kubectl get nodes
-          op run -- kubectl apply -f manifest.yml
-          op run -- helm repo add coder-v2 https://helm.coder.com/v2
-          op run -- helm upgrade --install coder coder-v2/coder \
-                              --namespace coder \
-                              --values values.yml \
-                              --version 2.13.5  
+        run: make kubectl_deploy
       
   stop-runner:
     if: ${{ always() }}

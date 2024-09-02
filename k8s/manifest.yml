@@ -10,4 +10,4 @@ metadata:
   namespace: coder
 type: Opaque
 stringData:
-  url: "$(DB_URL)"
+  url: ""

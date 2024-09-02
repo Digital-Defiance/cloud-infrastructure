@@ -89,6 +89,7 @@ resource "aws_iam_policy" "coder_policy" {
           "ec2:DescribeIamInstanceProfileAssociations",
           "ec2:DescribeTags",
           "ec2:DescribeInstances",
+          "ec2:DescribeInstanceStatus",
           "ec2:DescribeInstanceTypes",
           "ec2:CreateTags",
           "ec2:RunInstances",
@@ -137,9 +138,5 @@ resource "aws_iam_role_policy_attachment" "attach-to-one" {
 
 output "aws_configuration_command" {
   value = "aws eks update-kubeconfig --region eu-south-1 --name ${module.eks.cluster_name}"
-}
-
-output "eks_managed_groups_iam_role_arn" {
-  value = module.eks.eks_managed_node_groups.one.iam_role_name
 }
 

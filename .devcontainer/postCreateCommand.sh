@@ -1,4 +1,4 @@
-
+git config push.autoSetupRemote true
 git config --global --add safe.directory /workspaces/cloud-infrastructure
 git clone https://github.com/RuiFilipeCampos/nvim.git "${XDG_CONFIG_HOME:-$HOME/.config}"/nvim
 git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf

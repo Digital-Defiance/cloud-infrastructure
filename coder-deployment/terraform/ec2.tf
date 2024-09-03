@@ -64,7 +64,7 @@ module "ec2_temp_instance_v2" {
 
   ami       = data.aws_ami.ubuntu.id
   source    = "terraform-aws-modules/ec2-instance/aws"
-  user_data = file("${path.module}/user_data.sh")
+  user_data = file("${path.module}/scripts/user_data.sh")
 
   name = "eks-cluster-tmp-manager-instance-v2"
 
@@ -118,11 +118,6 @@ resource "aws_eip_association" "eip_assoc" {
 
 
 # ----------------- OUTPUT --------------------
-
-output "user_data" {
-  value = file("${path.module}/user_data.sh")
-
-}
 
 output "ssh_command" {
   value = try("ssh -i id_ed ubuntu@${aws_eip.ip_of_manager_instance.public_ip}", null)

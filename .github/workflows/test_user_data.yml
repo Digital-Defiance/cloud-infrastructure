@@ -4,7 +4,7 @@ on:
   pull_request:
     paths:
       - '.github/workflows/test_user_data.yml'
-      - './k8s/user_data.sh'
+      - './k8s/coder-deployment/terraform/scripts/user_data.sh'
     branches:
       - "main"
 
@@ -22,19 +22,12 @@ jobs:
       id: checkout
       uses: actions/checkout@v1
 
-    - run: apt update
-    - run: apt install curl -y
-
-    - run:  sed -i "2a\\alias sudo=''" ./user_data.sh
-      name: Add alias to mock sudo
-      working-directory: ./k8s
-
-    - run:  chmod +x ./user_data.sh 
-      name: Add execute permissions
-      working-directory: ./k8s
-
-      
-    - run:  ./user_data.sh
-      working-directory: ./k8s
+    - working-directory: ./coder-deployment/terraform/scripts
+      run: |
+        apt update
+        apt install curl -y
+        sed -i "2a\\alias sudo=''" ./user_data.sh
+        chmod +x ./user_data.sh 
+        ./user_data.sh
 
     

@@ -36,13 +36,13 @@ kubectl_setup:
 	op run -- aws eks update-kubeconfig --region eu-south-1 --name cloud-dev-infra
 
 kubectl_apply:
-	op run -- kubectl apply -f ./k8s/manifest.yml
+	op run -- kubectl apply -f ./coder-deployment/k8s/manifest.yml
 
 helm:
 	op run -- helm repo add coder-v2 https://helm.coder.com/v2
 	op run -- helm upgrade --install coder coder-v2/coder \
 		--namespace coder \
-		--values ./k8s/values.yml \
+		--values ./coder-deployment/k8s/values.yml \
 		--version 2.13.5
 kubectl_getpods:
 	op run -- kubectl get pods -n coder

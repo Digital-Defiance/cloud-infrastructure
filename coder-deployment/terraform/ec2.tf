@@ -64,7 +64,7 @@ module "ec2_temp_instance_v2" {
 
   ami       = data.aws_ami.ubuntu.id
   source    = "terraform-aws-modules/ec2-instance/aws"
-  user_data = file("${path.module}/user_data.sh")
+  user_data = file("${path.module}/scripts/user_data.sh")
 
   name = "eks-cluster-tmp-manager-instance-v2"
 

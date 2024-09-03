@@ -4,7 +4,7 @@ on:
   pull_request:
     paths:
       - '.github/workflows/test_user_data.yml'
-      - './k8s/user_data.sh'
+      - './k8s/coder-deployment/terraform/scripts/user_data.sh'
     branches:
       - "main"
 

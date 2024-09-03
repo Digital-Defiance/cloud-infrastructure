@@ -1,11 +1,16 @@
 version: 2
 updates:
   - package-ecosystem: "devcontainers" 
-    directory: "/"
+    directory: "/.devcontainer/pre-build"
     schedule:
       interval: daily
       
   - package-ecosystem: "terraform"
-    directory: "/k8s"
+    directory: "/coder-deployment/terraform"
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: "terraform"
+    directory: "/coder-deployment/terraform_info"
     schedule:
       interval: weekly

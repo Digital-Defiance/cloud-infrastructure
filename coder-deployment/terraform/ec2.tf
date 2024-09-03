@@ -119,11 +119,6 @@ resource "aws_eip_association" "eip_assoc" {
 
 # ----------------- OUTPUT --------------------
 
-output "user_data" {
-  value = file("${path.module}/user_data.sh")
-
-}
-
 output "ssh_command" {
   value = try("ssh -i id_ed ubuntu@${aws_eip.ip_of_manager_instance.public_ip}", null)
 }

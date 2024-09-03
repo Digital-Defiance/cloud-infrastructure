@@ -1,4 +1,5 @@
 #!/bin/sh -x
+set -x
 
 # INSTALL DOCKER
 sudo apt update -y

@@ -117,6 +117,9 @@ jobs:
           AWS_SECRET_ACCESS_KEY: "op://${{ env.PROJECT_ENV }}/aws_credentials/AWS_SECRET_ACCESS_KEY"
           AWS_ACCESS_KEY_ID: "op://${{ env.PROJECT_ENV }}/aws_credentials/AWS_ACCESS_KEY_ID"
         run:
+          extract_out() {
+            echo "$TERRAFORM_OUTPUT" | jq ".$1.value" | tr -d '"'
+          }
           cd coder-deployment/terraform_info
           op run -- terraform init
           op run -- terraform apply -auto-approve -var="secret_arn=$SECRET_ARN"

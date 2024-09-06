@@ -30,7 +30,6 @@ jobs:
     
     - 
       id: get-aws-info
-      working-directory: ./coder-deployment/terraform_info
       shell: bash
       env: 
         OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}

@@ -78,9 +78,7 @@ actions_kubectl_get_info:
 	DB_INSTANCE_ENDPOINT=$$(extract_out db_instance_endpoint )
 	DB_PASSWORD=$$( extract_out db_instance_password ) 
 	DB_PASSWORD_URLENCODED=$$(jq -rn --arg x "$$DB_PASSWORD" '$$x|@uri')
-	cd ..
-	cd ..
-	save_out DB_URL "postgresql://$$DB_MASTER_USERNAME:$$DB_PASSWORD_URLENCODED@$$DB_INSTANCE_ENDPOINT/postgres"
+	save_out db_url "postgresql://$$DB_MASTER_USERNAME:$$DB_PASSWORD_URLENCODED@$$DB_INSTANCE_ENDPOINT/postgres"
 
 	save_env AMI $$(extract_out ami)
 	save_env SECURITY_GROUP_ID $$(extract_out security_group_id)

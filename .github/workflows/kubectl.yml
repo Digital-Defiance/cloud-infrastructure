@@ -1,6 +1,10 @@
 name: Deploy coder
 on:
   workflow_dispatch:
+  pull_request:
+  schedule:
+  - cron: "0 0 * * *"
+
     
 env:
   PROJECT_ENV: digital-defiance-cloud-infrastructure-prod
@@ -16,8 +20,7 @@ jobs:
     outputs:
       label: ${{ steps.start-ec2-runner.outputs.label }}
       ec2-instance-id: ${{ steps.start-ec2-runner.outputs.ec2-instance-id }}
-      db_username: ${{ steps.get-aws-info.outputs.db_master_username }}
-      db_endpoint: ${{ steps.get-aws-info.outputs.db_instance_endpoint }}
+      db_url: ${{ steps.get-aws-info.outputs.db_url }}
 
     steps:
 
@@ -28,23 +31,27 @@ jobs:
     
     - 
       id: get-aws-info
-      working-directory: ./coder-deployment/terraform_info
       shell: bash
       env: 
         OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
-        AWS_SECRET_ACCESS_KEY: "op://${{ env.PROJECT_ENV }}/aws_credentials/AWS_SECRET_ACCESS_KEY"
-        AWS_ACCESS_KEY_ID: "op://${{ env.PROJECT_ENV }}/aws_credentials/AWS_ACCESS_KEY_ID"
         TF_TOKEN_app_terraform_io: "op://${{ env.PROJECT_ENV }}/terraform_credentials/TF_TOKEN_app_terraform_io"
+        SECRET_ARN: ${{ secrets.SECRET_ARN }}
       run: |
+        cd coder-deployment/terraform_info
         op run -- terraform init
-        op run -- terraform apply -auto-approve
-        TERRAFORM_OUTPUT=$(op run -- terraform output -json)
-        echo "AMI=$( echo "$TERRAFORM_OUTPUT" | jq .ami.value | tr -d '"' )" >> $GITHUB_ENV
-        echo "SECURITY_GROUP_ID=$( echo "$TERRAFORM_OUTPUT" | jq .security_group_id.value | tr -d '"' )" >> $GITHUB_ENV
-        echo "SUBNET_ID=$(echo "$TERRAFORM_OUTPUT" | jq .subnet_ids.value.ids[0] | tr -d '"' )" >> $GITHUB_ENV
-        echo "db_master_username=$( echo "$TERRAFORM_OUTPUT" | jq .db_instance_master_username.value | tr -d '"' )" >> $GITHUB_OUTPUT
-        echo "db_instance_endpoint=$( echo "$TERRAFORM_OUTPUT" | jq .db_instance_endpoint.value | tr -d '"' )" >> $GITHUB_OUTPUT
-    
+        op run -- terraform apply -auto-approve -var="secret_arn=$SECRET_ARN"
+        TERRAFORM_OUTPUT=$( op run -- terraform output -json )
+        extract_out() {
+          echo "$TERRAFORM_OUTPUT" | jq ".$1.value" | tr -d '"'
+        }
+        save_env(){
+          echo "$1=$2" >> $GITHUB_ENV
+        }
+        save_env AMI $(extract_out ami)
+        save_env SECURITY_GROUP_ID $(extract_out security_group_id)
+        save_env SUBNET_ID $(extract_out subnet_ids)
+
+
     -
       name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
@@ -92,11 +99,26 @@ jobs:
         shell: bash
         env:
           OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
-          DB_URL: postgresql://${{ needs.start-runner.outputs.db_username }}:${{ secrets.db_password }}@${{ needs.start-runner.outputs.db_endpoint }}/postgres
           AWS_SECRET_ACCESS_KEY: "op://${{ env.PROJECT_ENV }}/aws_credentials/AWS_SECRET_ACCESS_KEY"
           AWS_ACCESS_KEY_ID: "op://${{ env.PROJECT_ENV }}/aws_credentials/AWS_ACCESS_KEY_ID"
-        run: make kubectl_deploy
-      
+          TF_TOKEN_app_terraform_io: "op://${{ env.PROJECT_ENV }}/terraform_credentials/TF_TOKEN_app_terraform_io"
+          SECRET_ARN: ${{ secrets.SECRET_ARN }}
+        run: |
+          extract_out() {
+            echo "$TERRAFORM_OUTPUT" | jq ".$1.value" | tr -d '"'
+          }
+          cd coder-deployment/terraform_info
+          op run -- terraform init
+          op run -- terraform apply -auto-approve -var="secret_arn=$SECRET_ARN"
+          TERRAFORM_OUTPUT=$( op run -- terraform output -json )
+          DB_MASTER_USERNAME=$(extract_out db_instance_master_username ) 
+          DB_INSTANCE_ENDPOINT=$(extract_out db_instance_endpoint )
+          DB_PASSWORD=$( extract_out db_instance_password ) 
+          DB_PASSWORD_URLENCODED=$(jq -rn --arg x "$DB_PASSWORD" '$x|@uri')
+          export DB_URL="postgresql://$DB_MASTER_USERNAME:$DB_PASSWORD_URLENCODED@$DB_INSTANCE_ENDPOINT/postgres"
+          cd ../../
+          make kubectl_deploy
+        
   stop-runner:
     if: ${{ always() }}
     runs-on: ubuntu-latest

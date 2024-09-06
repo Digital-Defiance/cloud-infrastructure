@@ -78,6 +78,23 @@ data "aws_db_instance" "selected" {
   }
 }
 
+variable "secret_arn" {
+  type = string
+}
+
+data "aws_secretsmanager_secret" "secrets" {
+  arn = var.secret_arn
+}
+
+data "aws_secretsmanager_secret_version" "current" {
+  secret_id = data.aws_secretsmanager_secret.secrets.id
+}
+
+output "db_instance_password" {
+  value     = jsondecode(data.aws_secretsmanager_secret_version.current.secret_string)["password"]
+  sensitive = true
+}
+
 output "db_instance_master_username" {
   value = data.aws_db_instance.selected.master_username
 }
@@ -95,6 +112,6 @@ output "ami" {
 }
 
 output "subnet_ids" {
-  value = data.aws_subnets.selected
+  value = data.aws_subnets.selected.ids[0]
 }
 

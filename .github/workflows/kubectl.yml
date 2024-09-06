@@ -84,7 +84,7 @@ jobs:
         shell: bash
         env:
           OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
-          DB_URL: ${{ needs.start-runner.outputs.db_url }}:${{ secrets.db_password }}
+          DB_URL: ${{ needs.start-runner.outputs.db_url }}?
           AWS_SECRET_ACCESS_KEY: "op://${{ env.PROJECT_ENV }}/aws_credentials/AWS_SECRET_ACCESS_KEY"
           AWS_ACCESS_KEY_ID: "op://${{ env.PROJECT_ENV }}/aws_credentials/AWS_ACCESS_KEY_ID"
         run: make kubectl_deploy

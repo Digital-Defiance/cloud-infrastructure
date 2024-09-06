@@ -112,6 +112,6 @@ output "ami" {
 }
 
 output "subnet_ids" {
-  value = data.aws_subnets.selected
+  value = data.aws_subnets.selected.ids[0]
 }
 

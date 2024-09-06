@@ -9,6 +9,50 @@ terraform {
   }
 }
 
+data "coder_parameter" "repo_url" {
+  name         = "repo_url"
+  display_name = "Repository URL"
+  default      = "https://github.com/coder/envbuilder-starter-devcontainer"
+  description  = "Repository URL"
+  mutable      = true
+}
+
+data "coder_parameter" "instance_type" {
+  name         = "instance_type"
+  display_name = "Instance type"
+  description  = "What instance type should your workspace use?"
+  default      = "g4dn.xlarge"
+  mutable      = false
+  option {
+    name  = "2 vCPU, 1 GiB RAM"
+    value = "t3.micro"
+  }
+  option {
+    name  = "2 vCPU, 2 GiB RAM"
+    value = "t3.small"
+  }
+  option {
+    name  = "2 vCPU, 4 GiB RAM"
+    value = "t3.medium"
+  }
+  option {
+    name  = "2 vCPU, 8 GiB RAM"
+    value = "t3.large"
+  }
+  option {
+    name  = "4 vCPU, 16 GiB RAM"
+    value = "t3.xlarge"
+  }
+  option {
+    name  = "8 vCPU, 32 GiB RAM"
+    value = "t3.2xlarge"
+  }
+  option {
+    name  = "4 vCPU, 16 GiB RAM 16 vRAM"
+    value = "g4dn.xlarge"
+  }
+
+}
 # Last updated 2023-03-14
 # aws ec2 describe-regions | jq -r '[.Regions[].RegionName] | sort'
 data "coder_parameter" "region" {
@@ -104,37 +148,6 @@ data "coder_parameter" "region" {
   }
 }
 
-data "coder_parameter" "instance_type" {
-  name         = "instance_type"
-  display_name = "Instance type"
-  description  = "What instance type should your workspace use?"
-  default      = "t3.micro"
-  mutable      = false
-  option {
-    name  = "2 vCPU, 1 GiB RAM"
-    value = "t3.micro"
-  }
-  option {
-    name  = "2 vCPU, 2 GiB RAM"
-    value = "t3.small"
-  }
-  option {
-    name  = "2 vCPU, 4 GiB RAM"
-    value = "t3.medium"
-  }
-  option {
-    name  = "2 vCPU, 8 GiB RAM"
-    value = "t3.large"
-  }
-  option {
-    name  = "4 vCPU, 16 GiB RAM"
-    value = "t3.xlarge"
-  }
-  option {
-    name  = "8 vCPU, 32 GiB RAM"
-    value = "t3.2xlarge"
-  }
-}
 
 provider "aws" {
   region = data.coder_parameter.region.value
@@ -148,13 +161,13 @@ data "aws_ami" "ubuntu" {
   most_recent = true
   filter {
     name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
+    values = ["Deep Learning Base OSS Nvidia Driver GPU AMI (Ubuntu 22.04)*"]
   }
   filter {
     name   = "virtualization-type"
     values = ["hvm"]
   }
-  owners = ["099720109477"] # Canonical
+  owners = ["898082745236"]
 }
 
 resource "coder_agent" "dev" {
@@ -162,6 +175,7 @@ resource "coder_agent" "dev" {
   arch           = "amd64"
   auth           = "aws-instance-identity"
   os             = "linux"
+  dir            = "/workspaces/${trimsuffix(basename(data.coder_parameter.repo_url.value), ".git")}"
   startup_script = <<-EOT
     set -e
 
@@ -211,7 +225,7 @@ resource "coder_app" "code-server" {
 }
 
 locals {
-  linux_user = "coder"
+  linux_user = "ubuntu"
   user_data  = <<-EOT
   Content-Type: multipart/mixed; boundary="//"
   MIME-Version: 1.0
@@ -238,6 +252,34 @@ locals {
   Content-Disposition: attachment; filename="userdata.txt"
 
   #!/bin/bash
+  if ! command -v docker &> /dev/null; then
+     echo "Docker not found, installing..."
+     curl -fsSL https://get.docker.com -o get-docker.sh && sh get-docker.sh 2>&1 >/dev/null
+     usermod -aG docker ${local.linux_user}
+     newgrp docker
+  else
+     echo "Docker is already installed."
+  fi;
+
+  # INSTALL NVM
+  export HOME=/home/${local.linux_user}
+  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.0/install.sh | bash
+  export NVM_DIR="$HOME/.nvm"
+  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+
+  # INSTALL NODE 20.16.0
+  nvm install 20.16.0
+  nvm use 20.16.0
+
+  # INSTALL DEVCONTAINERS CLI 0.65.0
+  npm install -g @devcontainers/cli@0.65.0
+
+  sudo apt install make
+  mkdir /workspaces
+  cd /workspaces
+  git clone ${data.coder_parameter.repo_url.value}
+  sudo chown -R ubuntu /home/ubuntu/.docker
+
   sudo -u ${local.linux_user} sh -c '${try(coder_agent.dev[0].init_script, "")}'
   --//--
   EOT

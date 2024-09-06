@@ -60,7 +60,7 @@ module "ssh_security_group" {
 }
 
 module "ec2_temp_instance_v2" {
-  create = false
+  create = true
 
   ami       = data.aws_ami.ubuntu.id
   source    = "terraform-aws-modules/ec2-instance/aws"

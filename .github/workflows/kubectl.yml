@@ -1,6 +1,9 @@
 name: Deploy coder
 on:
   workflow_dispatch:
+  schedule:
+  - cron: "0 0 * * *"
+
     
 env:
   PROJECT_ENV: digital-defiance-cloud-infrastructure-prod
@@ -16,8 +19,7 @@ jobs:
     outputs:
       label: ${{ steps.start-ec2-runner.outputs.label }}
       ec2-instance-id: ${{ steps.start-ec2-runner.outputs.ec2-instance-id }}
-      db_username: ${{ steps.get-aws-info.outputs.db_master_username }}
-      db_endpoint: ${{ steps.get-aws-info.outputs.db_instance_endpoint }}
+      DB_URL: ${{ steps.get-aws-info.outputs.DB_URL }}
 
     steps:
 
@@ -32,19 +34,10 @@ jobs:
       shell: bash
       env: 
         OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
-        AWS_SECRET_ACCESS_KEY: "op://${{ env.PROJECT_ENV }}/aws_credentials/AWS_SECRET_ACCESS_KEY"
-        AWS_ACCESS_KEY_ID: "op://${{ env.PROJECT_ENV }}/aws_credentials/AWS_ACCESS_KEY_ID"
         TF_TOKEN_app_terraform_io: "op://${{ env.PROJECT_ENV }}/terraform_credentials/TF_TOKEN_app_terraform_io"
-      run: |
-        op run -- terraform init
-        op run -- terraform apply -auto-approve
-        TERRAFORM_OUTPUT=$(op run -- terraform output -json)
-        echo "AMI=$( echo "$TERRAFORM_OUTPUT" | jq .ami.value | tr -d '"' )" >> $GITHUB_ENV
-        echo "SECURITY_GROUP_ID=$( echo "$TERRAFORM_OUTPUT" | jq .security_group_id.value | tr -d '"' )" >> $GITHUB_ENV
-        echo "SUBNET_ID=$(echo "$TERRAFORM_OUTPUT" | jq .subnet_ids.value.ids[0] | tr -d '"' )" >> $GITHUB_ENV
-        echo "db_master_username=$( echo "$TERRAFORM_OUTPUT" | jq .db_instance_master_username.value | tr -d '"' )" >> $GITHUB_OUTPUT
-        echo "db_instance_endpoint=$( echo "$TERRAFORM_OUTPUT" | jq .db_instance_endpoint.value | tr -d '"' )" >> $GITHUB_OUTPUT
-    
+        SECRET_ARN: ${{ secrets.SECRET_ARN }}
+      run: make actions_kubectl_get_info
+
     -
       name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
@@ -92,7 +85,7 @@ jobs:
         shell: bash
         env:
           OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
-          DB_URL: postgresql://${{ needs.start-runner.outputs.db_username }}:${{ secrets.db_password }}@${{ needs.start-runner.outputs.db_endpoint }}/postgres
+          DB_URL: ${{ needs.start-runner.outputs.DB_URL }}
           AWS_SECRET_ACCESS_KEY: "op://${{ env.PROJECT_ENV }}/aws_credentials/AWS_SECRET_ACCESS_KEY"
           AWS_ACCESS_KEY_ID: "op://${{ env.PROJECT_ENV }}/aws_credentials/AWS_ACCESS_KEY_ID"
         run: make kubectl_deploy

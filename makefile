@@ -54,3 +54,32 @@ kubectl_deploy:
 	make kubectl_updatesecret
 	make kubectl_restartdeployment
 
+
+actions_kubectl_get_info:
+	# fetch information from aws 
+	cd coder-deployment/terraform_info
+	op run -- terraform init
+	op run -- terraform apply -auto-approve -var="secret_arn=$$SECRET_ARN"
+	TERRAFORM_OUTPUT=$$( op run -- terraform output -json )
+
+	# parse information 
+	extract_out() {
+		echo "$$TERRAFORM_OUTPUT" | jq ".$$1.value" | tr -d '"'
+	}
+	DB_MASTER_USERNAME=$$(extract_out db_instance_master_username) 
+	DB_INSTANCE_ENDPOINT=$$(extract_out db_instance_endpoint) 
+	DB_PASSWORD=$$( extract_out db_instance_password) 
+	DB_PASSWORD_URLENCODED=$$(jq -rn --arg x "$$DB_PASSWORD" '$$x|@uri')
+	DB_URL="postgresql://$$DB_MASTER_USERNAME:$$DB_PASSWORD_URLENCODED@$$DB_INSTANCE_ENDPOINT/postgres"
+	
+	# save information to env
+	cat << EOF >> $$GITHUB_ENV
+	AMI=$$(extract_out ami)
+	SECURITY_GROUP_ID=$$(extract_out security_group_id)
+	SUBNET_ID=$$(extract_out subnet_ids)
+	EOF
+
+	# save information to output
+	cat << EOF >> $$GITHUB_OUTPUT
+	DB_URL=$$DB_URL
+	EOF

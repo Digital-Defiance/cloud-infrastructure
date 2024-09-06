@@ -1,7 +1,7 @@
 # rds
 data "aws_rds_orderable_db_instance" "selected" {
   engine                     = "postgres"
-  engine_version             = "15.4"
+  engine_version             = "15.5"
   license_model              = "postgresql-license"
   preferred_instance_classes = ["db.t3.micro"]
 }
@@ -34,7 +34,7 @@ module "db" {
 
   major_engine_version = "15"
   engine               = "postgres"
-  engine_version       = "15.4"
+  engine_version       = "15.5"
   family               = "postgres15"
 
   instance_class    = "db.t3.micro"

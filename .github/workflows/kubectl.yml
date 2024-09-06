@@ -114,11 +114,21 @@ jobs:
         shell: bash
         env:
           OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
-          DB_URL: postgres:${{ needs.start-runner.outputs.db_url }}/${{ secrets.EMPTY_SECRET }}
           AWS_SECRET_ACCESS_KEY: "op://${{ env.PROJECT_ENV }}/aws_credentials/AWS_SECRET_ACCESS_KEY"
           AWS_ACCESS_KEY_ID: "op://${{ env.PROJECT_ENV }}/aws_credentials/AWS_ACCESS_KEY_ID"
-        run: make kubectl_deploy
-      
+        run:
+          cd coder-deployment/terraform_info
+          op run -- terraform init
+          op run -- terraform apply -auto-approve -var="secret_arn=$SECRET_ARN"
+          TERRAFORM_OUTPUT=$( op run -- terraform output -json )
+          DB_MASTER_USERNAME=$(extract_out db_instance_master_username ) 
+          DB_INSTANCE_ENDPOINT=$(extract_out db_instance_endpoint )
+          DB_PASSWORD=$( extract_out db_instance_password ) 
+          DB_PASSWORD_URLENCODED=$(jq -rn --arg x "$DB_PASSWORD" '$x|@uri')
+          export DB_URL="postgresql://$DB_MASTER_USERNAME:$DB_PASSWORD_URLENCODED@$DB_INSTANCE_ENDPOINT/postgres"
+          cd ../../
+          make kubectl_deploy
+        
   stop-runner:
     if: ${{ always() }}
     runs-on: ubuntu-latest

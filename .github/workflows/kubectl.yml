@@ -41,30 +41,15 @@ jobs:
         op run -- terraform init
         op run -- terraform apply -auto-approve -var="secret_arn=$SECRET_ARN"
         TERRAFORM_OUTPUT=$( op run -- terraform output -json )
-
-        # parse information 
         extract_out() {
           echo "$TERRAFORM_OUTPUT" | jq ".$1.value" | tr -d '"'
         }
         save_env(){
           echo "$1=$2" >> $GITHUB_ENV
         }
-        save_out(){
-          echo "$1=$2" >> $GITHUB_OUTPUT
-        }
-        DB_MASTER_USERNAME=$(extract_out db_instance_master_username ) 
-        DB_INSTANCE_ENDPOINT=$(extract_out db_instance_endpoint )
-        DB_PASSWORD=$( extract_out db_instance_password ) 
-        DB_PASSWORD_URLENCODED=$(jq -rn --arg x "$DB_PASSWORD" '$x|@uri')
-        save_out db_url "postgresql://$DB_MASTER_USERNAME:$DB_PASSWORD_URLENCODED@$DB_INSTANCE_ENDPOINT/postgres"
         save_env AMI $(extract_out ami)
         save_env SECURITY_GROUP_ID $(extract_out security_group_id)
         save_env SUBNET_ID $(extract_out subnet_ids)
-
-        # Debug: Print the DB_URL
-        echo "Debug - DB_URL: $DB_URL"
-        echo "Debug - GITHUB_OUTPUT content:"
-        cat $GITHUB_OUTPUT
 
 
     -
@@ -116,6 +101,8 @@ jobs:
           OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
           AWS_SECRET_ACCESS_KEY: "op://${{ env.PROJECT_ENV }}/aws_credentials/AWS_SECRET_ACCESS_KEY"
           AWS_ACCESS_KEY_ID: "op://${{ env.PROJECT_ENV }}/aws_credentials/AWS_ACCESS_KEY_ID"
+          TF_TOKEN_app_terraform_io: "op://${{ env.PROJECT_ENV }}/terraform_credentials/TF_TOKEN_app_terraform_io"
+          SECRET_ARN: ${{ secrets.SECRET_ARN }}
         run:
           extract_out() {
             echo "$TERRAFORM_OUTPUT" | jq ".$1.value" | tr -d '"'

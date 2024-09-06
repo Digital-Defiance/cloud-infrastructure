@@ -19,7 +19,7 @@ jobs:
     outputs:
       label: ${{ steps.start-ec2-runner.outputs.label }}
       ec2-instance-id: ${{ steps.start-ec2-runner.outputs.ec2-instance-id }}
-      DB_URL: ${{ steps.get-aws-info.outputs.db_url }}
+      db_url: ${{ steps.get-aws-info.outputs.DB_URL }}
 
     steps:
 

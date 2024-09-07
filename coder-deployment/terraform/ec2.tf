@@ -108,7 +108,7 @@ resource "aws_eip" "ip_of_manager_instance" {
 }
 
 resource "aws_eip_association" "eip_assoc" {
-  count         = 1
+  count         = 0
   instance_id   = module.ec2_temp_instance_v2.id
   allocation_id = resource.aws_eip.ip_of_manager_instance.id
   depends_on = [

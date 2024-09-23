@@ -27,7 +27,7 @@ module "irsa-ebs-csi" {
 
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "20.24.0"
+  version = "20.24.2"
 
   cluster_name    = "cloud-dev-infra"
   cluster_version = "1.29"
